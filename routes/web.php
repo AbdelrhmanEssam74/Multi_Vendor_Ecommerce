@@ -9,15 +9,15 @@ Route::get('/', function () {
 
 Route::get('/dashboard', function () {
     return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth', 'verified', 'roleManager:customer'])->name('dashboard');
 // admin dashboard
 Route::get('/admin/dashboard', function () {
     return view('admin');
-})->middleware(['auth', 'verified'])->name('admin.dashboard');
+})->middleware(['auth', 'verified' , 'roleManager:admin'])->name('admin.dashboard');
 // seller dashboard
 Route::get('/seller/dashboard', function () {
     return view('seller');
-})->middleware(['auth', 'verified'])->name('seller.dashboard');
+})->middleware(['auth', 'verified' , 'roleManager:seller'])->name('seller.dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
