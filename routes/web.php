@@ -12,7 +12,7 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified', 'roleManager:customer'])->name('dashboard');
 // admin dashboard
 Route::get('/admin/dashboard', function () {
-    return view('admin');
+    return view('admin.admin');
 })->middleware(['auth', 'verified' , 'roleManager:admin'])->name('admin.dashboard');
 // seller dashboard
 Route::get('/seller/dashboard', function () {
