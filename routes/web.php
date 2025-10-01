@@ -1,5 +1,11 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminMainController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\DiscountController;
+use App\Http\Controllers\Admin\ProductAttributeController;
+use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\SubCategoryController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -10,9 +16,41 @@ Route::get('/', function () {
 // Admin Routes
 Route::middleware(['auth', 'verified', 'roleManager:admin'])->group(function () {
     Route::prefix('admin')->group(function () {
-        Route::get('/dashboard', function () {
-            return view('admin.admin');
-        })->name('admin.dashboard');
+        Route::controller(AdminMainController::class)->group(function () {
+            Route::get('/dashboard', 'index')->name('admin.dashboard');
+            Route::get('/settings', 'settings')->name('admin.settings');
+            Route::prefix('manage')->group(function () {
+                Route::get('/user', 'manage_user')->name('admin.manage.user');
+                Route::get('/store', 'manage_store')->name('admin.manage.store');
+            });
+            Route::get('/order/history', 'order_history')->name('admin.order.history');
+            Route::get('/cart/history', 'cart_history')->name('admin.cart.history');
+        });
+        // Category Routes
+        Route::controller(CategoryController::class)->group(function () {
+            Route::get('/category/create', 'create')->name('admin.category.create');
+            Route::post('/category/manage', 'manage')->name('admin.category.manage');
+        });
+        Route::controller(SubCategoryController::class)->group(function () {
+            Route::get('/category/create', 'create')->name('admin.category.create');
+            Route::post('/category/manage', 'manage')->name('admin.category.manage');
+        });
+        Route::controller(SubCategoryController::class)->group(function () {
+            Route::get('/subcategory/create', 'create')->name('admin.subcategory.create');
+            Route::post('/subcategory/manage', 'manage')->name('admin.subcategory.manage');
+        });
+        Route::controller(ProductController::class)->group(function () {
+            Route::post('/product/manage', 'manage')->name('admin.product.manage');
+            Route::post('/product/product_review', 'review')->name('admin.product.review');
+        });
+        Route::controller(ProductAttributeController::class)->group(function () {
+            Route::get('/productAttribute/create', 'create')->name('admin.productAttribute.create');
+            Route::post('/productAttribute/manage', 'manage')->name('admin.productAttribute.manage');
+        });
+        Route::controller(DiscountController::class)->group(function () {
+            Route::get('/discount/create', 'create')->name('admin.discount.create');
+            Route::post('/discount/manage', 'manage')->name('admin.discount.manage');
+        });
     });
 });
 
