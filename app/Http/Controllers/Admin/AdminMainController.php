@@ -10,4 +10,19 @@ class AdminMainController extends Controller
     public function index(){
         return view('admin.admin');
     }
+    public function settings(){
+        return view('admin.settings');
+    }
+    public function manage_user(){
+        return view('admin.manage.user');
+    }
+    public function manage_store(){
+        return view('admin.manage.store');
+    }
+    public function order_history(){
+        return view('admin.order.history');
+    }
+    public function cart_history(){
+        return view('admin.cart.history');
+    }
 }

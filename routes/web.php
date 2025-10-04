@@ -32,10 +32,6 @@ Route::middleware(['auth', 'verified', 'roleManager:admin'])->group(function () 
             Route::post('/category/manage', 'manage')->name('admin.category.manage');
         });
         Route::controller(SubCategoryController::class)->group(function () {
-            Route::get('/category/create', 'create')->name('admin.category.create');
-            Route::post('/category/manage', 'manage')->name('admin.category.manage');
-        });
-        Route::controller(SubCategoryController::class)->group(function () {
             Route::get('/subcategory/create', 'create')->name('admin.subcategory.create');
             Route::post('/subcategory/manage', 'manage')->name('admin.subcategory.manage');
         });
