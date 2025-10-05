@@ -1,3 +1,8 @@
-<div>
-    <!-- Do what you can, with what you have, where you are. - Theodore Roosevelt -->
-</div>
+@extends('admin.layouts.layout')
+@section('title', 'Manage Products Review')
+@section('description')
+    Manage Products Review
+@endsection
+@section('admin_layout')
+    <h1> Manage Products Review </h1>
+@endsection

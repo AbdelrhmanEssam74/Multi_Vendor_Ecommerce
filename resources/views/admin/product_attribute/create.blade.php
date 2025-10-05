@@ -1,3 +1,8 @@
-<div>
-    <!-- Life is available only in the present moment. - Thich Nhat Hanh -->
-</div>
+@extends('admin.layouts.layout')
+@section('title', 'Create Attribute')
+@section('description')
+    Create New Product Attribute
+@endsection
+@section('admin_layout')
+    <h1>Create Attribute</h1>
+@endsection

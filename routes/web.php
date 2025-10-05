@@ -29,23 +29,23 @@ Route::middleware(['auth', 'verified', 'roleManager:admin'])->group(function () 
         // Category Routes
         Route::controller(CategoryController::class)->group(function () {
             Route::get('/category/create', 'create')->name('admin.category.create');
-            Route::post('/category/manage', 'manage')->name('admin.category.manage');
+            Route::get('/category/manage', 'manage')->name('admin.category.manage');
         });
         Route::controller(SubCategoryController::class)->group(function () {
             Route::get('/subcategory/create', 'create')->name('admin.subcategory.create');
-            Route::post('/subcategory/manage', 'manage')->name('admin.subcategory.manage');
+            Route::get('/subcategory/manage', 'manage')->name('admin.subcategory.manage');
         });
         Route::controller(ProductController::class)->group(function () {
-            Route::post('/product/manage', 'manage')->name('admin.product.manage');
-            Route::post('/product/product_review', 'review')->name('admin.product.review');
+            Route::get('/product/manage', 'manage')->name('admin.product.manage');
+            Route::get('/product/product_review', 'review')->name('admin.product.review');
         });
         Route::controller(ProductAttributeController::class)->group(function () {
             Route::get('/productAttribute/create', 'create')->name('admin.productAttribute.create');
-            Route::post('/productAttribute/manage', 'manage')->name('admin.productAttribute.manage');
+            Route::get('/productAttribute/manage', 'manage')->name('admin.productAttribute.manage');
         });
         Route::controller(DiscountController::class)->group(function () {
             Route::get('/discount/create', 'create')->name('admin.discount.create');
-            Route::post('/discount/manage', 'manage')->name('admin.discount.manage');
+            Route::get('/discount/manage', 'manage')->name('admin.discount.manage');
         });
     });
 });
