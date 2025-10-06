@@ -7,6 +7,9 @@ use App\Http\Controllers\Admin\ProductAttributeController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\SubCategoryController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Seller\SellerMainController;
+use App\Http\Controllers\Seller\SellerProductController;
+use App\Http\Controllers\Seller\SellerStoreController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -54,10 +57,25 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified', 'roleManager:customer'])->name('dashboard');
 
-// seller dashboard
-Route::get('/seller/dashboard', function () {
-    return view('seller');
-})->middleware(['auth', 'verified', 'roleManager:seller'])->name('seller.dashboard');
+// Seller Routes
+Route::middleware(['auth', 'verified', 'roleManager:seller'])->group(function () {
+    Route::prefix('seller')->group(function () {
+        Route::controller(SellerMainController::class)->group(function () {
+            Route::get('/dashboard', 'index')->name('seller.dashboard');
+            Route::get('/settings', 'settings')->name('seller.settings');
+            Route::get('/order/history', 'order_history')->name('seller.order.history');
+
+        });
+        Route::controller(SellerProductController::class)->group(function () {
+            Route::get('/product/create', 'create')->name('seller.product.create');
+            Route::get('/product/manage', 'manage')->name('seller.product.manage');
+        });
+        Route::controller(SellerStoreController::class)->group(function () {
+            Route::get('/store/create', 'create')->name('seller.store.create');
+            Route::get('/store/manage', 'manage')->name('seller.store.manage');
+        });
+    });
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
