@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\ProductAttributeController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\SubCategoryController;
 use App\Http\Controllers\Customer\CustomerMainController;
+use App\Http\Controllers\MasterCategoryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Seller\SellerMainController;
 use App\Http\Controllers\Seller\SellerProductController;
@@ -19,7 +20,7 @@ Route::get('/', function () {
 
 // Admin Routes
 Route::middleware(['auth', 'verified', 'roleManager:admin'])->group(function () {
-    Route::prefix('admin')->group(function () {
+    Route::prefix('admin')->group(callback: function () {
         Route::controller(AdminMainController::class)->group(function () {
             Route::get('/dashboard', 'index')->name('admin.dashboard');
             Route::get('/settings', 'settings')->name('admin.settings');
@@ -34,6 +35,9 @@ Route::middleware(['auth', 'verified', 'roleManager:admin'])->group(function () 
         Route::controller(CategoryController::class)->group(function () {
             Route::get('/category/create', 'create')->name('admin.category.create');
             Route::get('/category/manage', 'manage')->name('admin.category.manage');
+        });
+        Route::controller(MasterCategoryController::class)->group(function(){
+            Route::post('category/store', 'store')->name('admin.category.store');
         });
         Route::controller(SubCategoryController::class)->group(function () {
             Route::get('/subcategory/create', 'create')->name('admin.subcategory.create');
