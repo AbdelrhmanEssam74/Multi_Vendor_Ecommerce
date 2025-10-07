@@ -16,11 +16,17 @@
     <link rel="canonical" href="https://demo-basic.adminkit.io/pages-blank.html"/>
 
     <title>@yield('title')</title>
-
+    <style>
+        @yield('css')
+    </style>
+    {{--  Toastr CSS --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    {{-- Toastr JS --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <link href="{{asset('admin_asset/css/app.css')}}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
-
 <body>
 <div class="wrapper">
     <nav id="sidebar" class="sidebar js-sidebar">
@@ -97,7 +103,8 @@
                 </li>
                 <li class="sidebar-item {{request()->routeIs('admin.product.manage') ? 'active' : ''}}">
                     <a class="sidebar-link" href="{{ route('admin.product.manage') }}">
-                        <i class="align-middle" data-feather="list"></i> <span class="align-middle">Manage Products</span>
+                        <i class="align-middle" data-feather="list"></i> <span
+                            class="align-middle">Manage Products</span>
                     </a>
                 </li>
 
@@ -118,7 +125,8 @@
 
                 <li class="sidebar-item {{request()->routeIs('admin.order.history') ? 'active' : ''}}">
                     <a class="sidebar-link" href="{{ route('admin.order.history') }}">
-                        <i class="align-middle" data-feather="shopping-bag"></i> <span class="align-middle">Orders</span>
+                        <i class="align-middle" data-feather="shopping-bag"></i> <span
+                            class="align-middle">Orders</span>
                     </a>
                 </li>
 
@@ -133,7 +141,6 @@
             </ul>
         </div>
     </nav>
-
     <div class="main">
         <nav class="navbar navbar-expand navbar-light navbar-bg">
             <a class="sidebar-toggle js-sidebar-toggle">
@@ -354,9 +361,8 @@
         </footer>
     </div>
 </div>
-
 <script src="{{asset('admin_asset/js/app.js')}}"></script>
-
+@yield('js')
 </body>
 
 </html>
