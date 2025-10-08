@@ -193,9 +193,9 @@
                                 </td>
                                 <td>{{\Carbon\Carbon::parse($cat->create_at)->format('M d, Y')}}</td>
                                 <td>
-                                    <button class="btn btn-sm btn-outline-primary action-btn">
+                                    <a href="{{ route('admin.category.edit' , $cat->category_slug) }}" class="btn btn-sm btn-outline-primary action-btn">
                                         <i class="align-middle" data-feather="edit"></i>
-                                    </button>
+                                    </a>
                                     <button class="btn btn-sm btn-outline-danger action-btn">
                                         <i class="align-middle" data-feather="trash-2"></i>
                                     </button>
