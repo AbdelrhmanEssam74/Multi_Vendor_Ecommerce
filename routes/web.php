@@ -38,6 +38,8 @@ Route::middleware(['auth', 'verified', 'roleManager:admin'])->group(function () 
         });
         Route::controller(MasterCategoryController::class)->group(function(){
             Route::post('category/store', 'store')->name('admin.category.store');
+            Route::get('category/{slug}', 'edit')->name('admin.category.edit');
+            Route::put('category/update/{category_id}', 'update')->name('admin.category.update');
         });
         Route::controller(SubCategoryController::class)->group(function () {
             Route::get('/subcategory/create', 'create')->name('admin.subcategory.create');
