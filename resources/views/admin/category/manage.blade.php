@@ -4,6 +4,90 @@
     Manage existing categories and organize products.
 @endsection
 @section('css')
+    /* Modal overlay (background) */
+    .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none; /* hidden by default */
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    }
+
+    /* Modal box */
+    .modal-box {
+    background: #fff;
+    padding: 25px 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    animation: fadeIn 0.25s ease-in-out;
+    }
+
+    /* Title & text */
+    .modal-box h3 {
+    margin-bottom: 10px;
+    font-size: 1.4rem;
+    color: #222;
+    }
+
+    .modal-box p {
+    margin-bottom: 25px;
+    color: #666;
+    font-size: 0.95rem;
+    }
+
+    /* Buttons */
+    .modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    }
+
+    .btn {
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: none;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.25s ease;
+    }
+
+    .btn-danger {
+    background-color: #e53935;
+    color: white;
+    }
+
+    .btn-danger:hover {
+    background-color: #d32f2f;
+    }
+
+    .btn-secondary {
+    background-color: #ccc;
+    color: #333;
+    }
+
+    .btn-secondary:hover {
+    background-color: #b3b3b3;
+    }
+
+    /* Fade animation */
+    @keyframes fadeIn {
+    from {
+    transform: scale(0.95);
+    opacity: 0;
+    }
+    to {
+    transform: scale(1);
+    opacity: 1;
+    }
+    }
     .card-header {
     background-color: #fff;
     border-bottom: 1px solid #e3e6f0;
@@ -193,12 +277,18 @@
                                 </td>
                                 <td>{{\Carbon\Carbon::parse($cat->create_at)->format('M d, Y')}}</td>
                                 <td>
-                                    <a href="{{ route('admin.category.edit' , $cat->category_slug) }}" class="btn btn-sm btn-outline-primary action-btn">
+                                    <a href="{{ route('admin.category.edit' , $cat->category_slug) }}"
+                                       class="btn btn-sm btn-outline-primary action-btn">
                                         <i class="align-middle" data-feather="edit"></i>
                                     </a>
-                                    <button class="btn btn-sm btn-outline-danger action-btn">
-                                        <i class="align-middle" data-feather="trash-2"></i>
-                                    </button>
+                                    <form action="{{ route('admin.category.delete', $cat->category_id) }}"
+                                          method="POST" style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="button" class="btn btn-sm btn-outline-danger delete-btn">
+                                            <i class="align-middle" data-feather="trash-2"></i>
+                                        </button>
+                                    </form>
                                     <button class="btn btn-sm btn-outline-secondary action-btn">
                                         <i class="align-middle" data-feather="eye"></i>
                                     </button>
@@ -208,7 +298,6 @@
                         </tbody>
                     </table>
                 </div>
-
                 <!-- Pagination -->
                 <div class="pagination">
                     {{ $categories->withQueryString()->onEachSide(1)->links('components.custom-pagination') }}
@@ -216,4 +305,56 @@
             </div>
         </div>
     </div>
+
+    {{--  Delete Confimation Modal   --}}
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Are you sure?</h3>
+            <p>This action cannot be undone.</p>
+            <div class="modal-actions">
+                <button id="confirmDeleteBtn" class="btn btn-danger">Yes, Delete</button>
+                <button id="cancelDeleteBtn" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+@endsection
+@section('js')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const deleteModal = document.getElementById('deleteModal');
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+
+            let deleteForm = null; // reference to the form that triggered delete
+
+            // listen to all delete buttons
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    deleteForm = this.closest('form'); // get the form
+                    deleteModal.style.display = 'flex'; // show modal
+                });
+            });
+
+            // confirm deletion
+            confirmDeleteBtn.addEventListener('click', function () {
+                if (deleteForm) deleteForm.submit();
+                deleteModal.style.display = 'none';
+            });
+
+            // cancel button
+            cancelDeleteBtn.addEventListener('click', function () {
+                deleteModal.style.display = 'none';
+            });
+
+            // close modal when clicking outside the box
+            deleteModal.addEventListener('click', function (e) {
+                if (e.target === deleteModal) {
+                    deleteModal.style.display = 'none';
+                }
+            });
+        });
+    </script>
 @endsection

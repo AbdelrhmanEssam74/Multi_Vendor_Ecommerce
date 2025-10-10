@@ -77,4 +77,15 @@ class MasterCategoryController extends Controller
         return redirect()->route('admin.category.manage');
     }
 
+    // delete category
+    public function destroy($category_id){
+        $category = Category::findOrFail($category_id);
+        if ($category->category_image && Storage::disk('public')->exists($category->category_image)) {
+            // delete the image from the storage
+            Storage::disk('public')->delete($category->category_image);
+        }
+        $category->delete();
+        toastr()->success('Category deleted successfully.');
+        return redirect()->back();
+    }
 }
