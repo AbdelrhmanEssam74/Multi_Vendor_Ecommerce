@@ -55,7 +55,8 @@
                         <i class="align-middle" data-feather="list"></i> <span class="align-middle">Manage</span>
                     </a>
                 </li>
-
+                {{-- sub category - will avilable in new version --}}
+                <!--
                 <li class="sidebar-header">
                     Sub Categories
                 </li>
@@ -64,12 +65,12 @@
                         <i class="align-middle" data-feather="plus"></i> <span class="align-middle">Create</span>
                     </a>
                 </li>
-
                 <li class="sidebar-item {{request()->routeIs('admin.subcategory.manage') ? 'active' : ''}}">
                     <a class="sidebar-link" href="{{ route('admin.subcategory.manage') }}">
                         <i class="align-middle" data-feather="list"></i> <span class="align-middle">Manage</span>
                     </a>
                 </li>
+                -->
                 <li class="sidebar-header">
                     Attributes
                 </li>
@@ -362,6 +363,7 @@
     </div>
 </div>
 <script src="{{asset('admin_asset/js/app.js')}}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 @yield('js')
 </body>
 

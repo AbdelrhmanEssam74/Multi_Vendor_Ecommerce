@@ -112,8 +112,8 @@
     .category-img {
     width: 40px;
     height: 40px;
+    border-radius: 8px;
     object-fit: cover;
-    border-radius: 0.35rem;
     }
 
     .action-btn {
@@ -155,6 +155,28 @@
     .stats-text {
     font-size: 0.8rem;
     color: #5a5c69;
+    }
+
+    .sub-row {
+    background-color: #fafafa;
+    animation: slideDown 0.3s ease forwards;
+    }
+    @keyframes slideDown {
+    from {
+    opacity: 0;
+    transform: translateY(-8px);
+    }
+    to {
+    opacity: 1;
+    transform: translateY(0);
+    }
+    }
+    .toggle-sub {
+    transition: transform 0.3s ease;
+    }
+
+    .toggle-sub.rotated {
+    transform: rotate(180deg);
     }
 
 @endsection
@@ -232,55 +254,56 @@
                         <option value="">All Status</option>
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
-                        <option value="draft">Draft</option>
                     </select>
                 </div>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-hover">
+                    <table class="table align-middle mb-0">
                         <thead>
                         <tr>
-                            <th width="5%">#</th>
-                            <th width="10%">Image</th>
+                            <th>ID</th>
+                            <th>Image</th>
                             <th>Name</th>
                             <th>Slug</th>
                             <th>Products</th>
                             <th>Status</th>
-                            <th>Created</th>
-                            <th width="15%">Actions</th>
+                            <th>Created At</th>
+                            <th>Actions</th>
                         </tr>
                         </thead>
                         <tbody>
                         @foreach($categories as $cat)
-                            <tr>
-                                <td>{{$cat->category_id}}</td>
+                            <tr data-category-id="{{ $cat->category_id }}">
+                                <td>{{ $cat->category_id }}</td>
                                 <td>
-                                    <img src="{{asset('storage/' . $cat->category_image)}}" loading="lazy"
-                                         alt="{{ $cat->category_name}}" class="category-img">
+                                    <img src="{{ asset('storage/' . $cat->category_image) }}"
+                                         alt="{{ $cat->category_name }}" loading="lazy"
+                                         class="category-img">
                                 </td>
                                 <td>
-                                    <strong>{{ \Str::ucfirst($cat->category_name)}}</strong>
+                                    <strong>{{ \Str::ucfirst($cat->category_name) }}</strong>
                                 </td>
-                                <td>{{ ($cat->category_slug)}}</td>
+                                <td>{{ $cat->category_slug }}</td>
                                 <td>128</td>
                                 <td>
                                     @if($cat->status)
-                                        <span class="badge bg-success status-badge">
-                                            Active
-                                    </span>
+                                        <span class="badge bg-success status-badge">Active</span>
                                     @else
-                                        <span class="badge bg-danger status-badge">
-                                            Inactive
-                                    </span>
+                                        <span class="badge bg-danger status-badge">Inactive</span>
                                     @endif
                                 </td>
-                                <td>{{\Carbon\Carbon::parse($cat->create_at)->format('M d, Y')}}</td>
+                                <td>{{ \Carbon\Carbon::parse($cat->created_at)->format('M d, Y') }}</td>
                                 <td>
-                                    <a href="{{ route('admin.category.edit' , $cat->category_slug) }}"
+                                    <button class="btn btn-sm btn-outline-secondary toggle-sub" title="Show Subcategories">
+                                        <i class="align-middle" data-feather="chevron-down"></i>
+                                    </button>
+
+                                    <a href="{{ route('admin.category.edit', $cat->category_slug) }}"
                                        class="btn btn-sm btn-outline-primary action-btn">
                                         <i class="align-middle" data-feather="edit"></i>
                                     </a>
+
                                     <form action="{{ route('admin.category.delete', $cat->category_id) }}"
                                           method="POST" style="display:inline;">
                                         @csrf
@@ -289,14 +312,12 @@
                                             <i class="align-middle" data-feather="trash-2"></i>
                                         </button>
                                     </form>
-                                    <button class="btn btn-sm btn-outline-secondary action-btn">
-                                        <i class="align-middle" data-feather="eye"></i>
-                                    </button>
                                 </td>
                             </tr>
                         @endforeach
                         </tbody>
                     </table>
+
                 </div>
                 <!-- Pagination -->
                 <div class="pagination">
@@ -355,6 +376,61 @@
                     deleteModal.style.display = 'none';
                 }
             });
+
+            // make the td in the category table clickable to show subcategories (if exists)
+            const subCategories = @json($subCategories);
+
+            // group subcategories by parent_id
+            const groupedSubs = {};
+            subCategories.forEach(sub => {
+                if (!groupedSubs[sub.parent_id]) groupedSubs[sub.parent_id] = [];
+                groupedSubs[sub.parent_id].push(sub);
+            });
+
+            document.querySelectorAll(".toggle-sub").forEach(btn => {
+                const row = btn.closest("tr");
+                const catId = row.dataset.categoryId;
+
+                // hide toggle button if no subcategories
+                if (!groupedSubs[catId]) {
+                    btn.style.visibility = "hidden";
+                    return;
+                }
+
+                btn.addEventListener("click", () => {
+                    btn.classList.toggle("rotated");
+
+                    // check if already opened
+                    const existingSubs = row.parentElement.querySelectorAll(`.sub-of-${catId}`);
+                    if (existingSubs.length) {
+                        existingSubs.forEach(r => r.remove());
+                        return;
+                    }
+
+                    const subs = groupedSubs[catId];
+                    let html = subs.map(sub => `
+                <tr class="sub-row sub-of-${catId}">
+                    <td>↳ ${sub.category_id}</td>
+                    <td><img src="/storage/${sub.category_image}" class="category-img"></td>
+                    <td><strong>${sub.category_name}</strong></td>
+                    <td>${sub.category_slug}</td>
+                    <td>—</td>
+                    <td><span class="badge bg-secondary">Sub</span></td>
+                    <td>${new Date(sub.created_at).toLocaleDateString()}</td>
+                    <td>
+                        <a href="/admin/category/edit/${sub.category_slug}"
+                           class="btn btn-sm btn-outline-primary">
+                           <i data-feather="edit"></i>
+                        </a>
+                    </td>
+                </tr>
+            `).join('');
+
+                    row.insertAdjacentHTML("afterend", html);
+                    feather.replace();
+                });
+            });
+
         });
     </script>
 @endsection
