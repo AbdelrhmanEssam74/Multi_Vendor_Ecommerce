@@ -16,6 +16,7 @@ class MasterCategoryController extends Controller
             'category_name' => 'required|unique:categories',
             'category_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg',
             'category_slug' => 'required|unique:categories',
+            'parent_id' => 'nullable|exists:categories,category_id',
             'status' => 'required|in:1,0',
         ]);
         if ($request->hasFile('category_image')) {
@@ -77,4 +78,15 @@ class MasterCategoryController extends Controller
         return redirect()->route('admin.category.manage');
     }
 
+    // delete category
+    public function destroy($category_id){
+        $category = Category::findOrFail($category_id);
+        if ($category->category_image && Storage::disk('public')->exists($category->category_image)) {
+            // delete the image from the storage
+            Storage::disk('public')->delete($category->category_image);
+        }
+        $category->delete();
+        toastr()->success('Category deleted successfully.');
+        return redirect()->back();
+    }
 }

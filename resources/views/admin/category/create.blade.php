@@ -23,15 +23,6 @@
     }
 @endsection
 @section('admin_layout')
-    <script>
-        @if(session('success'))
-        toastr.success("{{ session('success') }}");
-        @endif
-
-        @if(session('error'))
-        toastr.error("{{ session('error') }}");
-        @endif
-    </script>
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h4 class="mb-0">Create New Category</h4>
@@ -75,6 +66,25 @@
                     </div>
                     <img id="imagePreview" class="image-preview img-thumbnail" src="#" alt="Image preview">
                     @error('category_image')
+                    <p class="text-danger">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Parent Category Dropdown -->
+                <div class="mb-4">
+                    <label for="parentCategory" class="form-label">Parent Category</label>
+                    <select class="form-select" id="parentCategory" name="parent_id">
+                        <option value="">No Parent Category (This is a main category)</option>
+                        @foreach($categories as $cat)
+                            <option value="{{ $cat->category_id }}" {{ old('parent_id') == $cat->category_id ? 'selected' : '' }}>
+                                {{ $cat->category_name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <div class="form-text">
+                        Select a parent category if this is a sub-category. Only main categories can be selected as parents.
+                    </div>
+                    @error('parent_id')
                     <p class="text-danger">{{ $message }}</p>
                     @enderror
                 </div>
