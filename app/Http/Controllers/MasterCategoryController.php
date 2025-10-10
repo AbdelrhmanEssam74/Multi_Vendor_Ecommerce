@@ -16,6 +16,7 @@ class MasterCategoryController extends Controller
             'category_name' => 'required|unique:categories',
             'category_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg',
             'category_slug' => 'required|unique:categories',
+            'parent_id' => 'nullable|exists:categories,category_id',
             'status' => 'required|in:1,0',
         ]);
         if ($request->hasFile('category_image')) {
