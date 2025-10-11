@@ -53,6 +53,7 @@ Route::middleware(['auth', 'verified', 'roleManager:admin'])->group(function () 
         Route::controller(ProductAttributeController::class)->group(function () {
             Route::get('/productAttribute/create', 'create')->name('admin.productAttribute.create');
             Route::get('/productAttribute/manage', 'manage')->name('admin.productAttribute.manage');
+            Route::post('/productAttribute/store', 'store')->name('admin.productAttribute.store');
         });
         Route::controller(DiscountController::class)->group(function () {
             Route::get('/discount/create', 'create')->name('admin.discount.create');
