@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Attributes;
 use Illuminate\Http\Request;
 
 class ProductAttributeController extends Controller
@@ -15,5 +16,18 @@ class ProductAttributeController extends Controller
     public function manage()
     {
         return view('admin.product_attribute.manage');
+    }
+    public function store(Request $request)
+    {
+        // Validate the request data
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|max:100|unique:attributes,code',
+            'type' => 'required',
+        ]);
+
+        // Create a new attribute
+        Attributes::create($validated);
+        return redirect()->route('admin.productAttribute.manage')->with('success', 'Product attribute created successfully.');
     }
 }
