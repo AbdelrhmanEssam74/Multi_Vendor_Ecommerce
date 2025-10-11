@@ -28,4 +28,7 @@ class Category extends Model
         }
         return $ids;
     }
+    public function hasChildren(){
+        return $this->children()->exists();
+    }
 }

@@ -5,6 +5,90 @@
     Edit the details of the category "{{ $category->category_name }}". Update the name, slug, image, and status of the category.
 @endsection
 @section('css')
+    /* Modal overlay (background) */
+    .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none; /* hidden by default */
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    }
+
+    /* Modal box */
+    .modal-box {
+    background: #fff;
+    padding: 25px 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    animation: fadeIn 0.25s ease-in-out;
+    }
+
+    /* Title & text */
+    .modal-box h3 {
+    margin-bottom: 10px;
+    font-size: 1.4rem;
+    color: #222;
+    }
+
+    .modal-box p {
+    margin-bottom: 25px;
+    color: #666;
+    font-size: 0.95rem;
+    }
+
+    /* Buttons */
+    .modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    }
+
+    .btn {
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: none;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.25s ease;
+    }
+
+    .btn-danger {
+    background-color: #e53935;
+    color: white;
+    }
+
+    .btn-danger:hover {
+    background-color: #d32f2f;
+    }
+
+    .btn-secondary {
+    background-color: #ccc;
+    color: #333;
+    }
+
+    .btn-secondary:hover {
+    background-color: #b3b3b3;
+    }
+
+    /* Fade animation */
+    @keyframes fadeIn {
+    from {
+    transform: scale(0.95);
+    opacity: 0;
+    }
+    to {
+    transform: scale(1);
+    opacity: 1;
+    }
+    }
     .form-check-label,
     .form-check-input{
     cursor: pointer;
@@ -302,9 +386,10 @@
                             <!-- Submit Buttons -->
                             <div class="d-flex justify-content-between mt-4">
                                 <div>
-                                    <button type="button" class="btn btn-outline-danger" id="deleteCategoryBtn">
-                                        <i class="fas fa-trash me-1"></i> Delete Category
+                                    <button type="button" class="btn btn-outline-danger delete-btn">
+                                        Delete Category
                                     </button>
+
                                 </div>
                                 <div>
                                     <button type="button" class="btn btn-outline-secondary me-2">
@@ -422,6 +507,23 @@
             {{--            </div>--}}
         </div>
     </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Are you sure?</h3>
+            <p>This action cannot be undone.</p>
+            <div class="modal-actions">
+                <form action="{{ route('admin.category.delete', $category->category_id) }}"
+                      method="POST" style="display:inline;" id="deleteCategoryForm">
+                    @csrf
+                    @method('DELETE')
+                    <button id="confirmDeleteBtn" class="btn btn-danger" type="submit">Yes, Delete</button>
+                    <button id="cancelDeleteBtn" class="btn btn-secondary">Cancel</button>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
 @section('js')
     <script>
@@ -500,31 +602,6 @@
                 }
             });
 
-            // Remove current image
-            removeImageBtn.addEventListener('click', function () {
-                if (confirm('Are you sure you want to remove the current image?')) {
-                    // Create a hidden input to indicate image removal
-                    let removeImageInput = document.querySelector('input[name="remove_image"]');
-                    if (!removeImageInput) {
-                        removeImageInput = document.createElement('input');
-                        removeImageInput.type = 'hidden';
-                        removeImageInput.name = 'remove_image';
-                        removeImageInput.value = '1';
-                        editCategoryForm.appendChild(removeImageInput);
-                    }
-
-                    // Set default placeholder image
-                    imagePreview.src = 'https://via.placeholder.com/200?text=No+Image';
-                    categoryImageInput.value = '';
-                }
-            });
-
-
-            // Delete category button
-            deleteCategoryBtn.addEventListener('click', function () {
-                const categoryName = categoryNameInput.value || 'this category';
-            });
-
             // Initialize character counter for category name
             const nameCounter = document.createElement('div');
             nameCounter.className = 'form-text text-end';
@@ -545,6 +622,36 @@
             categoryNameInput.addEventListener('input', updateNameCounter);
             updateNameCounter();
 
+            const deleteModal = document.getElementById('deleteModal');
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+
+            let deleteForm = document.getElementById('deleteCategoryForm');
+            console.log(deleteForm)
+            // listen to all delete buttons
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    deleteModal.style.display = 'flex'; // show modal
+                });
+            });
+
+            // confirm deletion
+            confirmDeleteBtn.addEventListener('click', function () {
+                deleteModal.style.display = 'none';
+            });
+
+            // cancel button
+            cancelDeleteBtn.addEventListener('click', function () {
+                deleteModal.style.display = 'none';
+            });
+
+            // close modal when clicking outside the box
+            deleteModal.addEventListener('click', function (e) {
+                if (e.target === deleteModal) {
+                    deleteModal.style.display = 'none';
+                }
+            });
         });
     </script>
 @endsection

@@ -238,6 +238,21 @@
                     </div>
                 </div>
             </div>
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card stats-card danger h-100">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="stats-text text-uppercase">SubCategories</div>
+                                <div class="stats-number">{{count($subCategories)}}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-times-circle fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Categories Table Card -->
@@ -295,7 +310,8 @@
                                 </td>
                                 <td>{{ \Carbon\Carbon::parse($cat->created_at)->format('M d, Y') }}</td>
                                 <td>
-                                    <button class="btn btn-sm btn-outline-secondary toggle-sub" title="Show Subcategories">
+                                    <button class="btn btn-sm btn-outline-secondary toggle-sub"
+                                            title="Show Subcategories">
                                         <i class="align-middle" data-feather="chevron-down"></i>
                                     </button>
 
@@ -327,7 +343,6 @@
         </div>
     </div>
 
-    {{--  Delete Confimation Modal   --}}
     <!-- Delete Confirmation Modal -->
     <div id="deleteModal" class="modal-overlay">
         <div class="modal-box">
@@ -414,12 +429,25 @@
                     <td><strong>${sub.category_name}</strong></td>
                     <td>${sub.category_slug}</td>
                     <td>—</td>
-                    <td><span class="badge bg-secondary">Sub</span></td>
+                    <td>
+                     `
+                        +
+                        (sub.status ? `<span class="badge bg-success status-badge">Active</span>` :
+                            `<span class="badge bg-danger status-badge">Inactive</span>`)
+                        +
+                     `
+                        <span class="badge bg-secondary">Sub</span>
+
+                     </td>
                     <td>${new Date(sub.created_at).toLocaleDateString()}</td>
                     <td>
                         <a href="/admin/category/${sub.category_slug}"
                            class="btn btn-sm btn-outline-primary">
                            <i data-feather="edit"></i>
+                        </a>
+                        <a href="/admin/category/delete/${sub.category_slug}"
+                           class="btn btn-sm btn-outline-danger delete-btn">
+                           <i data-feather="trash-2"></i>
                         </a>
                     </td>
                 </tr>
