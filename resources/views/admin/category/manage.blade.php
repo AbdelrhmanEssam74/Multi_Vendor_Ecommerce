@@ -238,6 +238,21 @@
                     </div>
                 </div>
             </div>
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card stats-card danger h-100">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="stats-text text-uppercase">SubCategories</div>
+                                <div class="stats-number">{{count($subCategories)}}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-times-circle fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Categories Table Card -->
