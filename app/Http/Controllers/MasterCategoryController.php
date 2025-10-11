@@ -76,19 +76,25 @@ class MasterCategoryController extends Controller
             return redirect()->back()->with('info', 'No changes made to the category.');
         }
         $category->save();
-        return redirect()->route('admin.category.manage')->with('success', 'Category updated successfully.');;
+        return redirect()->route('admin.category.manage')->with('success', 'Category updated successfully.');
     }
 
     // delete category
     public function destroy($category_id)
     {
         $category = Category::findOrFail($category_id);
+        $category_name = $category->category_name;
+        // check if the category has subcategories
+        if ($category->hasChildren()) {
+
+            return redirect()->back()->with('error', 'Cannot delete category "' . $category_name . '" because it has subcategories. Please delete or reassign its subcategories first.');
+        }
         if ($category->category_image && Storage::disk('public')->exists($category->category_image)) {
             // delete the image from the storage
             Storage::disk('public')->delete($category->category_image);
         }
         $category->delete();
-        toastr()->success('Category deleted successfully.');
-        return redirect()->back();
+        return redirect()->route('admin.category.manage')->with('success', 'Category "' . $category_name . '" deleted successfully.');
+
     }
 }

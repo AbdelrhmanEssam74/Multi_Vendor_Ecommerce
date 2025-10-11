@@ -295,7 +295,8 @@
                                 </td>
                                 <td>{{ \Carbon\Carbon::parse($cat->created_at)->format('M d, Y') }}</td>
                                 <td>
-                                    <button class="btn btn-sm btn-outline-secondary toggle-sub" title="Show Subcategories">
+                                    <button class="btn btn-sm btn-outline-secondary toggle-sub"
+                                            title="Show Subcategories">
                                         <i class="align-middle" data-feather="chevron-down"></i>
                                     </button>
 
@@ -327,7 +328,6 @@
         </div>
     </div>
 
-    {{--  Delete Confimation Modal   --}}
     <!-- Delete Confirmation Modal -->
     <div id="deleteModal" class="modal-overlay">
         <div class="modal-box">
@@ -414,12 +414,25 @@
                     <td><strong>${sub.category_name}</strong></td>
                     <td>${sub.category_slug}</td>
                     <td>—</td>
-                    <td><span class="badge bg-secondary">Sub</span></td>
+                    <td>
+                     `
+                        +
+                        (sub.status ? `<span class="badge bg-success status-badge">Active</span>` :
+                            `<span class="badge bg-danger status-badge">Inactive</span>`)
+                        +
+                     `
+                        <span class="badge bg-secondary">Sub</span>
+
+                     </td>
                     <td>${new Date(sub.created_at).toLocaleDateString()}</td>
                     <td>
                         <a href="/admin/category/${sub.category_slug}"
                            class="btn btn-sm btn-outline-primary">
                            <i data-feather="edit"></i>
+                        </a>
+                        <a href="/admin/category/delete/${sub.category_slug}"
+                           class="btn btn-sm btn-outline-danger delete-btn">
+                           <i data-feather="trash-2"></i>
                         </a>
                     </td>
                 </tr>
