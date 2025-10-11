@@ -26,13 +26,14 @@ class MasterCategoryController extends Controller
             $validated['category_image'] = null;
         }
         Category::create($validated);
-        return redirect()->back()->with('success', 'Category created successfully.');
+        return redirect()->route('admin.category.manage')->with('success', 'Category created successfully.');
     }
 
     public function edit($slug)
     {
         $category = Category::where('category_slug', $slug)->firstOrFail();
-        return view('admin.category.edit', compact('category'));
+        $categories = Category::select('category_id', 'category_name')->whereNull('parent_id')->get();
+        return view('admin.category.edit', compact('category', 'categories'));
     }
 
     public function update(Request $request, $category_id)
@@ -51,12 +52,14 @@ class MasterCategoryController extends Controller
                 'string',
                 Rule::unique('categories', 'category_slug')->ignore($category_id, 'category_id'),
             ],
+            'parent_id' => 'nullable|exists:categories,category_id',
             'status' => 'required|in:1,0',
         ]);
 
         $category = Category::findOrFail($category_id);
         $category->category_name = $validated['category_name'];
         $category->category_slug = $validated['category_slug'];
+        $category->parent_id = $validated['parent_id'];
         $category->status = $validated['status'];
         if ($request->hasFile('new_category_image')) {
             if ($category->category_image && Storage::disk('public')->exists($category->category_image)) {
@@ -70,16 +73,15 @@ class MasterCategoryController extends Controller
         }
         // Check if any attribute changed
         if (!$category->isDirty()) {
-            toastr()->info('No changes made to the category.');
-            return redirect()->back();
+            return redirect()->back()->with('info', 'No changes made to the category.');
         }
         $category->save();
-        toastr()->success('Category updated successfully.');
-        return redirect()->route('admin.category.manage');
+        return redirect()->route('admin.category.manage')->with('success', 'Category updated successfully.');;
     }
 
     // delete category
-    public function destroy($category_id){
+    public function destroy($category_id)
+    {
         $category = Category::findOrFail($category_id);
         if ($category->category_image && Storage::disk('public')->exists($category->category_image)) {
             // delete the image from the storage

@@ -164,7 +164,8 @@
                         @endif
                     </div>
                     <div class="card-body">
-                        <form id="editCategoryForm" method="post" action="{{ route('admin.category.update', $category->category_id) }}"
+                        <form id="editCategoryForm" method="post"
+                              action="{{ route('admin.category.update', $category->category_id) }}"
                               enctype="multipart/form-data">
                             @method('PUT')
                             @csrf
@@ -193,7 +194,7 @@
                                         </div>
                                     </div>
                                     <div class="mt-2" id="slugEditContainer" style="display: none;">
-                                        <input type="text"  class="form-control" id="slugInput" value="">
+                                        <input type="text" class="form-control" id="slugInput" value="">
                                         <div class="form-text">Customize the URL slug for this category.</div>
                                     </div>
                                 </div>
@@ -218,7 +219,7 @@
                                         <img id="imagePreview" class="image-preview"
                                              src="{{asset('storage/' . $category->category_image)}}"
                                              alt="Current category image">
-                                        <input type="hidden" name="current_image" value="{{$category->category_image}}" >
+                                        <input type="hidden" name="current_image" value="{{$category->category_image}}">
                                     </div>
                                 </div>
                             </div>
@@ -226,19 +227,25 @@
                             <!-- Settings Section -->
                             <div class="form-section">
                                 <h6 class="section-title">Settings</h6>
-
-                                <!-- Parent Category -->
-                                <!-- <div class="mb-4">
-                                     <label for="parentCategory" class="form-label">Parent Category</label>
-                                     <select class="form-select" id="parentCategory">
-                                         <option value="">No Parent Category</option>
-                                         <option value="1" selected>Technology</option>
-                                         <option value="2">Home Appliances</option>
-                                         <option value="3">Gadgets</option>
-                                     </select>
-                                     <div class="form-text">Select a parent category if this is a sub-category.</div>
-                                 </div>
-                                  -->
+                                <!-- Parent Category Dropdown -->
+                                <div class="mb-4">
+                                    <label for="parentCategory" class="form-label">Parent Category</label>
+                                    <select class="form-select" id="parentCategory" name="parent_id">
+                                        <option value="">None (Main Category)</option>
+                                        @foreach($categories as $cat)
+                                            @if($cat->category_id != $category->category_id)
+                                                {{-- Prevent a category from being its own parent --}}
+                                                <option value="{{ $cat->category_id }}"
+                                                    {{ $cat->category_id == $category->parent_id ? 'selected' : '' }}>
+                                                    {{ $cat->category_name }}
+                                                </option>
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                    @error('parent_id')
+                                    <p class="text-danger">{{ $message }}</p>
+                                    @enderror
+                                </div>
                                 <!-- Status -->
                                 <div class="mb-4">
                                     <label class="form-label">Status</label>

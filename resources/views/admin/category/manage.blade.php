@@ -379,14 +379,13 @@
 
             // make the td in the category table clickable to show subcategories (if exists)
             const subCategories = @json($subCategories);
-
             // group subcategories by parent_id
             const groupedSubs = {};
             subCategories.forEach(sub => {
                 if (!groupedSubs[sub.parent_id]) groupedSubs[sub.parent_id] = [];
                 groupedSubs[sub.parent_id].push(sub);
             });
-
+            console.log(groupedSubs);
             document.querySelectorAll(".toggle-sub").forEach(btn => {
                 const row = btn.closest("tr");
                 const catId = row.dataset.categoryId;
@@ -418,7 +417,7 @@
                     <td><span class="badge bg-secondary">Sub</span></td>
                     <td>${new Date(sub.created_at).toLocaleDateString()}</td>
                     <td>
-                        <a href="/admin/category/edit/${sub.category_slug}"
+                        <a href="/admin/category/${sub.category_slug}"
                            class="btn btn-sm btn-outline-primary">
                            <i data-feather="edit"></i>
                         </a>
