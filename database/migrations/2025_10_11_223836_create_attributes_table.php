@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('code');
             $table->string('type');
+            $table->tinyInteger('status')->default(1)->comment('1=active, 0=inactive');
             $table->string('created_by')->default('admin');
             $table->timestamps();
         });
