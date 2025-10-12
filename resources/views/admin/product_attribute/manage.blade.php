@@ -151,7 +151,8 @@
         <!-- Page Header -->
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="page-title">Manage Product Attributes</h1>
-            <a href="{{ route('admin.productAttribute.create') }}" class="d-none d-sm-inline-block btn btn-primary shadow-sm">
+            <a href="{{ route('admin.productAttribute.create') }}"
+               class="d-none d-sm-inline-block btn btn-primary shadow-sm">
                 <i class="fas fa-plus fa-sm text-white-50 me-1"></i> Create New Attribute
             </a>
         </div>
@@ -264,18 +265,22 @@
                                 </td>
                                 <td>128</td>
                                 <td>
-                                    <span class="badge bg-success status-badge">
-                                        @if($attribute->status)
+                                    @if($attribute->status)
+                                        <span class="badge bg-success status-badge">
                                             Active
-                                        @else
-                                            Inactive
-                                        @endif
                                     </span>
+                                    @else
+                                        <span class="badge bg-danger status-badge">
+                                            Inactive
+                                        </span>
+
+                                    @endif
                                 </td>
                                 <td class="action-btns">
-                                    <button class="btn btn-sm btn-outline-primary action-btn" title="Edit">
+                                    <a href="{{ route('admin.productAttribute.edit' , $attribute->attribute_id) }}"
+                                       class="btn btn-sm btn-outline-primary action-btn" title="Edit">
                                         <i class="fa-regular fa-pen-to-square"></i>
-                                    </button>
+                                    </a>
                                     <button class="btn btn-sm btn-outline-danger action-btn" title="Delete">
                                         <i class="fa-regular fa-trash"></i>
                                     </button>
