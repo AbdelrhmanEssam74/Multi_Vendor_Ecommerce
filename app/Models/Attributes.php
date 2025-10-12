@@ -7,5 +7,5 @@ use Illuminate\Database\Eloquent\Model;
 class Attributes extends Model
 {
     protected $primaryKey = 'attribute_id';
-    protected $fillable = ['name', 'code', 'type', 'created_by'];
+    protected $fillable = ['name', 'code', 'type', 'status', 'created_by'];
 }

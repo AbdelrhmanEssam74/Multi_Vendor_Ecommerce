@@ -157,7 +157,7 @@
                 <h1 class="page-title">Create Product Attribute</h1>
                 <p class="text-muted">Define a new attribute for your products</p>
             </div>
-            <a href="#" class="d-none d-sm-inline-block btn btn-outline-secondary shadow-sm">
+            <a href="{{ route('admin.productAttribute.manage') }}" class="d-none d-sm-inline-block btn btn-outline-secondary shadow-sm">
                 <i class="fas fa-arrow-left fa-sm me-1"></i> Back to Attributes
             </a>
         </div>
@@ -219,7 +219,27 @@
                                 <p class="text-danger">{{ $message }}</p>
                                 @enderror
                             </div>
-
+                            <!-- Status -->
+                            <div class="mb-4">
+                                <label class="form-label">Status</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="status" id="statusActive" value="1"
+                                           checked>
+                                    <label class="form-check-label" for="statusActive">
+                                        <i class="fas fa-circle text-success me-1"></i> Active
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="status" id="statusInactive" value="0">
+                                    <label class="form-check-label" for="statusInactive">
+                                        <i class="fas fa-circle text-secondary me-1"></i> Inactive
+                                    </label>
+                                </div>
+                                <div class="form-text">
+                                    Toggle the status of this attribute to control its visibility in the product
+                                    catalog.
+                                </div>
+                            </div>
                             <!-- Attribute Values (Conditional) -->
                             <!--
                             <div class="mb-4" id="valuesSection" style="display: none;">
