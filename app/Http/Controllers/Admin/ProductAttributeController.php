@@ -18,7 +18,7 @@ class ProductAttributeController extends Controller
     {
         $inActiveAttributes = Attributes::where('status', 0)->count();
         $ActiveAttributes = Attributes::where('status', 1)->count();
-        $attributes = Attributes::all();
+        $attributes = Attributes::withCount('products')->get();
         return view('admin.product_attribute.manage', compact('attributes', 'inActiveAttributes' , 'ActiveAttributes'));
     }
 
