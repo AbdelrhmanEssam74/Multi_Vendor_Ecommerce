@@ -19,7 +19,7 @@ class ProductAttributeController extends Controller
         $inActiveAttributes = Attributes::where('status', 0)->count();
         $ActiveAttributes = Attributes::where('status', 1)->count();
         $attributes = Attributes::withCount('products')->get();
-        return view('admin.product_attribute.manage', compact('attributes', 'inActiveAttributes' , 'ActiveAttributes'));
+        return view('admin.product_attribute.manage', compact('attributes', 'inActiveAttributes', 'ActiveAttributes'));
     }
 
     public function store(Request $request)
@@ -36,11 +36,15 @@ class ProductAttributeController extends Controller
         Attributes::create($validated);
         return redirect()->route('admin.productAttribute.manage')->with('success', 'Product attribute created successfully.');
     }
-    public function edit($att_id){
+
+    public function edit($att_id)
+    {
         $attribute = Attributes::findOrFail($att_id);
         return view('admin.product_attribute.edit', compact('attribute'));
     }
-    public function update($att_id, Request $request){
+
+    public function update($att_id, Request $request)
+    {
         $attribute = Attributes::findOrFail($att_id);
         $validate = $request->validate([
             'name' => 'required|string|max:255',
@@ -53,6 +57,10 @@ class ProductAttributeController extends Controller
             'type' => 'required',
             'status' => 'required',
         ]);
+        if ($attribute->hasProduct()) {
+            // return warring message if the attribute belongs to any product
+            return redirect()->back()->with('error', 'Cannot update attribute "' . $attribute->code . '" because it belongs to a product.');
+        }
         $attribute->name = $validate['name'];
         $attribute->code = $validate['code'];
         $attribute->type = $validate['type'];
@@ -66,5 +74,18 @@ class ProductAttributeController extends Controller
         return redirect()->route('admin.productAttribute.manage')->with('success', 'Product attribute updated successfully.');
 
     }
-    public function destroy(){}
+
+    public function destroy($att_id)
+    {
+        // get the attribute by id
+        $attribute = Attributes::findOrFail($att_id);
+        // check if the attribute belongs to any product
+        if ($attribute->hasProduct()) {
+            // return warring message if the attribute belongs to any product
+            return redirect()->back()->with('error', 'Cannot delete attribute "' . $attribute->code . '" because it belongs to a product.');
+        }
+        // delete the attribute
+        $attribute->delete();
+        return redirect()->route('admin.productAttribute.manage')->with('success', 'Product attribute "' . $attribute->code . '" deleted successfully.');
+    }
 }
