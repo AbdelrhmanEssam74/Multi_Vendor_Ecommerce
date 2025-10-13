@@ -4,6 +4,90 @@
     Manage product attributes including creation, editing, deletion, and bulk actions.
 @endsection
 @section('css')
+    /* Modal overlay (background) */
+    .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none; /* hidden by default */
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    }
+
+    /* Modal box */
+    .modal-box {
+    background: #fff;
+    padding: 25px 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    animation: fadeIn 0.25s ease-in-out;
+    }
+
+    /* Title & text */
+    .modal-box h3 {
+    margin-bottom: 10px;
+    font-size: 1.4rem;
+    color: #222;
+    }
+
+    .modal-box p {
+    margin-bottom: 25px;
+    color: #666;
+    font-size: 0.95rem;
+    }
+
+    /* Buttons */
+    .modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    }
+
+    .btn {
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: none;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.25s ease;
+    }
+
+    .btn-danger {
+    background-color: #e53935;
+    color: white;
+    }
+
+    .btn-danger:hover {
+    background-color: #d32f2f;
+    }
+
+    .btn-secondary {
+    background-color: #ccc;
+    color: #333;
+    }
+
+    .btn-secondary:hover {
+    background-color: #b3b3b3;
+    }
+
+    /* Fade animation */
+    @keyframes fadeIn {
+    from {
+    transform: scale(0.95);
+    opacity: 0;
+    }
+    to {
+    transform: scale(1);
+    opacity: 1;
+    }
+    }
     .navbar-custom {
     background-color: var(--bs-primary);
     box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
@@ -151,7 +235,8 @@
         <!-- Page Header -->
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
             <h1 class="page-title">Manage Product Attributes</h1>
-            <a href="{{ route('admin.productAttribute.create') }}" class="d-none d-sm-inline-block btn btn-primary shadow-sm">
+            <a href="{{ route('admin.productAttribute.create') }}"
+               class="d-none d-sm-inline-block btn btn-primary shadow-sm">
                 <i class="fas fa-plus fa-sm text-white-50 me-1"></i> Create New Attribute
             </a>
         </div>
@@ -262,23 +347,33 @@
                                 <td>
                                     <span class="badge bg-info type-badge">{{$attribute->type}}</span>
                                 </td>
-                                <td>128</td>
+                                <td>{{$attribute->products_count}}</td>
                                 <td>
-                                    <span class="badge bg-success status-badge">
-                                        @if($attribute->status)
+                                    @if($attribute->status)
+                                        <span class="badge bg-success status-badge">
                                             Active
-                                        @else
-                                            Inactive
-                                        @endif
                                     </span>
+                                    @else
+                                        <span class="badge bg-danger status-badge">
+                                            Inactive
+                                        </span>
+
+                                    @endif
                                 </td>
                                 <td class="action-btns">
-                                    <button class="btn btn-sm btn-outline-primary action-btn" title="Edit">
+                                    <a href="{{ route('admin.productAttribute.edit' , $attribute->attribute_id) }}"
+                                       class="btn btn-sm btn-outline-primary action-btn" title="Edit">
                                         <i class="fa-regular fa-pen-to-square"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger action-btn" title="Delete">
+                                    </a>
+
+                                    <form action="{{ route('admin.productAttribute.delete', $attribute->attribute_id) }}"
+                                          method="POST" style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="button" class="btn btn-sm btn-outline-danger delete-btn">
                                         <i class="fa-regular fa-trash"></i>
                                     </button>
+                                    </form>
                                 </td>
                             </tr>
                         @endforeach
@@ -289,4 +384,52 @@
             </div>
         </div>
     </div>
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Are you sure?</h3>
+            <p>This action cannot be undone.</p>
+            <div class="modal-actions">
+                <button id="confirmDeleteBtn" class="btn btn-danger">Yes, Delete</button>
+                <button id="cancelDeleteBtn" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+@endsection
+@section('js')
+    <script>
+        const deleteModal = document.getElementById('deleteModal');
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+
+        let deleteForm = null; // reference to the form that triggered delete
+
+        // listen to all delete buttons
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                deleteForm = this.closest('form'); // get the form
+                deleteModal.style.display = 'flex'; // show modal
+            });
+        });
+
+        // confirm deletion
+        confirmDeleteBtn.addEventListener('click', function () {
+            if (deleteForm) deleteForm.submit();
+            deleteModal.style.display = 'none';
+        });
+
+        // cancel button
+        cancelDeleteBtn.addEventListener('click', function () {
+            deleteModal.style.display = 'none';
+        });
+
+        // close modal when clicking outside the box
+        deleteModal.addEventListener('click', function (e) {
+            if (e.target === deleteModal) {
+                deleteModal.style.display = 'none';
+            }
+        });
+
+    </script>
 @endsection

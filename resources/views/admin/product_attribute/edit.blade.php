@@ -1,7 +1,7 @@
 @extends('admin.layouts.layout')
-@section('title', 'Create Attribute')
+@section('title', 'Edit Attribute')
 @section('description')
-    Create a new product attribute to enhance your product catalog.
+    Edit existing product attributes to update their details and options.
 @endsection
 @section('css')
     .breadcrumb {
@@ -51,7 +51,10 @@
     color: #5a5c69;
     margin-bottom: 0.5rem;
     }
-
+    .form-check-label,
+    .form-check-input{
+    cursor: pointer;
+    }
     .form-control, .form-select {
     border: 1px solid #d1d3e2;
     border-radius: 0.35rem;
@@ -170,13 +173,14 @@
                         <h6 class="m-0 font-weight-bold text-primary">Attribute Information</h6>
                     </div>
                     <div class="card-body">
-                        <form id="createAttributeForm" method="post" action="{{ route('admin.productAttribute.store') }}">
+                        <form id="createAttributeForm" method="post" action="{{ route('admin.productAttribute.update' , $attribute->attribute_id) }}">
                             @csrf
+                            @method('PUT')
                             <!-- Attribute Name -->
                             <div class="mb-4">
                                 <label for="attributeName" class="form-label">Attribute Name <span
                                         class="text-danger">*</span></label>
-                                <input type="text" class="form-control   @error('name') is-invalid @enderror " name="name" id="attributeName"
+                                <input type="text" class="form-control @error('name') is-invalid @enderror" value="{{$attribute->name}}" name="name" id="attributeName"
                                        placeholder="e.g., Color, Size, Material"  >
                                 <div class="form-text">Enter a descriptive name for your attribute.</div>
                                 @error('name')
@@ -188,7 +192,7 @@
                             <div class="mb-4">
                                 <label for="attributeCode" class="form-label">Attribute Code <span
                                         class="text-danger">*</span></label>
-                                <input type="text" class="form-control @error('name') is-invalid @enderror " name="code" id="attributeCode"
+                                <input type="text" class="form-control @error('name') is-invalid @enderror" value="{{$attribute->code}}" name="code" id="attributeCode"
                                        placeholder="e.g., color, size, material"  >
                                 <div class="form-text">Unique code used internally. Usually lowercase with
                                     underscores.
@@ -202,12 +206,11 @@
                             <div class="mb-4">
                                 <label for="attributeType" class="form-label">Attribute Type <span
                                         class="text-danger">*</span></label>
-                                <select class="form-select" name="type" id="attributeType"  >
-                                    <option value="">Select Attribute Type</option>
-                                    <option value="select">Dropdown Select</option>
-                                    <option value="color">Color Swatch</option>
-                                    <option value="boolean">Yes/No</option>
-                                    <option value="price">Price</option>
+                                <select class="form-select" name="type" id="attributeType">
+                                    <option value="select" {{ $attribute->type === 'select' ? 'selected' : '' }}>Select (Dropdown)</option>
+                                    <option value="color" {{ $attribute->type === 'color' ? 'selected' : '' }}>Color (Swatches)</option>
+                                    <option value="boolean" {{ $attribute->type === 'boolean' ? 'selected' : '' }}>Yes/No (Boolean)</option>
+                                    <option value="text" {{ $attribute->type === 'price' ? 'selected' : '' }}>price</option>
                                 </select>
                                 <div class="form-text">Choose how this attribute will be displayed and used.</div>
                                 @error('type')
@@ -219,13 +222,15 @@
                                 <label class="form-label">Status</label>
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="status" id="statusActive" value="1"
-                                           checked>
+                                        {{ $attribute->status == 1 ? 'checked' : '' }}>
                                     <label class="form-check-label" for="statusActive">
                                         <i class="fas fa-circle text-success me-1"></i> Active
                                     </label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="status" id="statusInactive" value="0">
+                                    <input class="form-check-input" type="radio" name="status" id="statusInactive" value="0"
+                                        {{ $attribute->status == 0 ? 'checked' : '' }}
+                                    >
                                     <label class="form-check-label" for="statusInactive">
                                         <i class="fas fa-circle text-secondary me-1"></i> Inactive
                                     </label>
@@ -260,36 +265,36 @@
                             </div>
                             -->
                             <!-- Color Options (Conditional) -->
-                           <!-- <div class="mb-4" id="colorOptionsSection" style="display: none;">
-                                <label class="form-label">Color Options</label>
-                                <div class="attribute-values-container">
-                                    <div class="empty-state" id="emptyColorsState">
-                                        <i class="fa-regular fa-palette"></i>
-                                        <p>No color options added yet</p>
-                                    </div>
-                                    <div id="colorsList"></div>
-                                </div>
-                                <div class="mt-3">
-                                    <div class="row g-2">
-                                        <div class="col-md-6">
-                                            <input type="text" class="form-control" id="newColorName"
-                                                   placeholder="Color name">
-                                        </div>
-                                        <div class="col-md-4">
-                                            <input type="color" class="form-control form-control-color"
-                                                   id="newColorValue" value="#4e73df">
-                                        </div>
-                                        <div class="col-md-2">
-                                            <button type="button" class="btn btn-outline-primary w-100"
-                                                    id="addColorBtn">
-                                                <i class="fa-regular fa-plus"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="form-text">Add color options with names and hex values.</div>
-                                </div>
-                            </div>
-                            -->
+                            <!-- <div class="mb-4" id="colorOptionsSection" style="display: none;">
+                                 <label class="form-label">Color Options</label>
+                                 <div class="attribute-values-container">
+                                     <div class="empty-state" id="emptyColorsState">
+                                         <i class="fa-regular fa-palette"></i>
+                                         <p>No color options added yet</p>
+                                     </div>
+                                     <div id="colorsList"></div>
+                                 </div>
+                                 <div class="mt-3">
+                                     <div class="row g-2">
+                                         <div class="col-md-6">
+                                             <input type="text" class="form-control" id="newColorName"
+                                                    placeholder="Color name">
+                                         </div>
+                                         <div class="col-md-4">
+                                             <input type="color" class="form-control form-control-color"
+                                                    id="newColorValue" value="#4e73df">
+                                         </div>
+                                         <div class="col-md-2">
+                                             <button type="button" class="btn btn-outline-primary w-100"
+                                                     id="addColorBtn">
+                                                 <i class="fa-regular fa-plus"></i>
+                                             </button>
+                                         </div>
+                                     </div>
+                                     <div class="form-text">Add color options with names and hex values.</div>
+                                 </div>
+                             </div>
+                             -->
                             <!-- Submit Buttons -->
                             <div class="d-flex gap-2 justify-content-end mt-5">
                                 <button type="reset" class="btn btn-outline-secondary">Reset</button>
@@ -336,14 +341,14 @@
                             <a href="{{ route('admin.productAttribute.manage') }}" class="btn btn-outline-primary text-start">
                                 <i class="fas fa-list me-2"></i> Manage Attributes
                             </a>
-                           <!--
-                           <button class="btn btn-outline-primary text-start">
-                                <i class="fas fa-copy me-2"></i> Duplicate Attribute
-                            </button>
-                            -->
-                           <!-- <button class="btn btn-outline-primary text-start">
-                                <i class="fas fa-question-circle me-2"></i> View Documentation
-                            </button> -->
+                            <!--
+                            <button class="btn btn-outline-primary text-start">
+                                 <i class="fas fa-copy me-2"></i> Duplicate Attribute
+                             </button>
+                             -->
+                            <!-- <button class="btn btn-outline-primary text-start">
+                                 <i class="fas fa-question-circle me-2"></i> View Documentation
+                             </button> -->
                         </div>
                     </div>
                 </div>
