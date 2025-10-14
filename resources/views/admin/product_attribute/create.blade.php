@@ -204,6 +204,8 @@
                                         class="text-danger">*</span></label>
                                 <select class="form-select" name="type" id="attributeType"  >
                                     <option value="">Select Attribute Type</option>
+                                    <option value="text">Input Text</option>
+                                    <option value="number">Input Number</option>
                                     <option value="select">Dropdown Select</option>
                                     <option value="color">Color Swatch</option>
                                     <option value="boolean">Yes/No</option>
@@ -214,6 +216,24 @@
                                 <p class="text-danger">{{ $message }}</p>
                                 @enderror
                             </div>
+
+                            <!-- Attribute's Category -->
+                            <div class="mb-4">
+                                <label for="category_id" class="form-label">Category <span
+                                        class="text-danger">*</span></label>
+                                <select class="form-select" name="category_id" id="category_id"  >
+                                    <option value="">
+                                        Select Category(General Category)
+                                    </option>
+                                    @foreach($categories as $category)
+                                        <option value="{{ $category->category_id }}">{{ $category->category_name }}</option>
+                                    @endforeach
+                                </select>
+                                <div class="form-text">
+                                    Choose the category that best describes this attribute.
+                                </div>
+                            </div>
+
                             <!-- Status -->
                             <div class="mb-4">
                                 <label class="form-label">Status</label>
