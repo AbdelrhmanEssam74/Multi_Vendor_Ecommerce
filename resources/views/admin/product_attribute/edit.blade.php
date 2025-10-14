@@ -160,7 +160,8 @@
                 <h1 class="page-title">Create Product Attribute</h1>
                 <p class="text-muted">Define a new attribute for your products</p>
             </div>
-            <a href="{{ route('admin.productAttribute.manage') }}" class="d-none d-sm-inline-block btn btn-outline-secondary shadow-sm">
+            <a href="{{ route('admin.productAttribute.manage') }}"
+               class="d-none d-sm-inline-block btn btn-outline-secondary shadow-sm">
                 <i class="fas fa-arrow-left fa-sm me-1"></i> Back to Attributes
             </a>
         </div>
@@ -173,15 +174,17 @@
                         <h6 class="m-0 font-weight-bold text-primary">Attribute Information</h6>
                     </div>
                     <div class="card-body">
-                        <form id="createAttributeForm" method="post" action="{{ route('admin.productAttribute.update' , $attribute->attribute_id) }}">
+                        <form id="createAttributeForm" method="post"
+                              action="{{ route('admin.productAttribute.update' , $attribute->attribute_id) }}">
                             @csrf
                             @method('PUT')
                             <!-- Attribute Name -->
                             <div class="mb-4">
                                 <label for="attributeName" class="form-label">Attribute Name <span
                                         class="text-danger">*</span></label>
-                                <input type="text" class="form-control @error('name') is-invalid @enderror" value="{{$attribute->name}}" name="name" id="attributeName"
-                                       placeholder="e.g., Color, Size, Material"  >
+                                <input type="text" class="form-control @error('name') is-invalid @enderror"
+                                       value="{{$attribute->name}}" name="name" id="attributeName"
+                                       placeholder="e.g., Color, Size, Material">
                                 <div class="form-text">Enter a descriptive name for your attribute.</div>
                                 @error('name')
                                 <p class="text-danger">{{ $message }}</p>
@@ -192,8 +195,9 @@
                             <div class="mb-4">
                                 <label for="attributeCode" class="form-label">Attribute Code <span
                                         class="text-danger">*</span></label>
-                                <input type="text" class="form-control @error('name') is-invalid @enderror" value="{{$attribute->code}}" name="code" id="attributeCode"
-                                       placeholder="e.g., color, size, material"  >
+                                <input type="text" class="form-control @error('name') is-invalid @enderror"
+                                       value="{{$attribute->code}}" name="code" id="attributeCode"
+                                       placeholder="e.g., color, size, material">
                                 <div class="form-text">Unique code used internally. Usually lowercase with
                                     underscores.
                                 </div>
@@ -207,28 +211,74 @@
                                 <label for="attributeType" class="form-label">Attribute Type <span
                                         class="text-danger">*</span></label>
                                 <select class="form-select" name="type" id="attributeType">
-                                    <option value="select" {{ $attribute->type === 'select' ? 'selected' : '' }}>Select (Dropdown)</option>
-                                    <option value="color" {{ $attribute->type === 'color' ? 'selected' : '' }}>Color (Swatches)</option>
-                                    <option value="boolean" {{ $attribute->type === 'boolean' ? 'selected' : '' }}>Yes/No (Boolean)</option>
-                                    <option value="text" {{ $attribute->type === 'price' ? 'selected' : '' }}>price</option>
+                                    <option value="select" {{ $attribute->type === 'text' ? 'selected' : '' }}>Input
+                                        Text
+                                    </option>
+                                    <option value="select" {{ $attribute->type === 'number' ? 'selected' : '' }}>Input
+                                        Number
+                                    </option>
+                                    <option value="select" {{ $attribute->type === 'select' ? 'selected' : '' }}>Select
+                                        (Dropdown)
+                                    </option>
+                                    <option value="color" {{ $attribute->type === 'color' ? 'selected' : '' }}>Color
+                                        (Swatches)
+                                    </option>
+                                    <option value="boolean" {{ $attribute->type === 'boolean' ? 'selected' : '' }}>
+                                        Yes/No (Boolean)
+                                    </option>
+                                    <option value="text" {{ $attribute->type === 'price' ? 'selected' : '' }}>price
+                                    </option>
                                 </select>
                                 <div class="form-text">Choose how this attribute will be displayed and used.</div>
                                 @error('type')
                                 <p class="text-danger">{{ $message }}</p>
                                 @enderror
                             </div>
+                            <!-- Attribute's Category -->
+                            <div class="mb-4">
+                                <label for="category_id" class="form-label">Category <span
+                                        class="text-danger">*</span></label>
+                                <select class="form-select" name="category_id" id="category_id">
+                                    <option value="">
+                                        Select Category(General Category)
+                                    </option>
+                                    @foreach($categories as $category)
+                                        {{$category}}
+                                        @if($category->category_id === $attribute->category_id)
+                                            <option value="{{ $category->category_id }}" selected>
+                                                {{ $category->category_name }}
+                                            </option>
+                                            @break
+                                        @endif
+                                    @endforeach
+                                    @foreach($categories as $category)
+                                        {{$category}}
+                                        @if($category->category_id !== $attribute->category_id)
+                                            <option value="{{ $category->category_id }}">
+                                                {{ $category->category_name }}
+                                            </option>
+                                        @endif
+                                    @endforeach
+                                </select>
+                                <div class="form-text">
+                                    Choose the category that best describes this attribute.
+                                </div>
+                            </div>
+
                             <!-- Status -->
                             <div class="mb-4">
                                 <label class="form-label">Status</label>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="status" id="statusActive" value="1"
+                                    <input class="form-check-input" type="radio" name="status" id="statusActive"
+                                           value="1"
                                         {{ $attribute->status == 1 ? 'checked' : '' }}>
                                     <label class="form-check-label" for="statusActive">
                                         <i class="fas fa-circle text-success me-1"></i> Active
                                     </label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="status" id="statusInactive" value="0"
+                                    <input class="form-check-input" type="radio" name="status" id="statusInactive"
+                                           value="0"
                                         {{ $attribute->status == 0 ? 'checked' : '' }}
                                     >
                                     <label class="form-check-label" for="statusInactive">
@@ -299,7 +349,7 @@
                             <div class="d-flex gap-2 justify-content-end mt-5">
                                 <button type="reset" class="btn btn-outline-secondary">Reset</button>
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save me-1"></i> Create Attribute
+                                    <i class="fas fa-save me-1"></i> Update Attribute
                                 </button>
                             </div>
                         </form>
@@ -338,7 +388,8 @@
                     </div>
                     <div class="card-body">
                         <div class="d-grid gap-2">
-                            <a href="{{ route('admin.productAttribute.manage') }}" class="btn btn-outline-primary text-start">
+                            <a href="{{ route('admin.productAttribute.manage') }}"
+                               class="btn btn-outline-primary text-start">
                                 <i class="fas fa-list me-2"></i> Manage Attributes
                             </a>
                             <!--
