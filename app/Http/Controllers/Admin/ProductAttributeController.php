@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attributes;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -11,7 +12,8 @@ class ProductAttributeController extends Controller
 {
     public function create()
     {
-        return view('admin.product_attribute.create');
+        $categories = Category::select('category_name', 'category_id')->whereNull('parent_id')->get();
+        return view('admin.product_attribute.create' , compact('categories'));
     }
 
     public function manage()
@@ -28,6 +30,7 @@ class ProductAttributeController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:100|unique:attributes,code',
+            'category_id' => 'nullable|exists:categories,category_id',
             'type' => 'required',
             'status' => 'required',
         ]);
@@ -40,7 +43,8 @@ class ProductAttributeController extends Controller
     public function edit($att_id)
     {
         $attribute = Attributes::findOrFail($att_id);
-        return view('admin.product_attribute.edit', compact('attribute'));
+        $categories = Category::select('category_name', 'category_id')->whereNull('parent_id')->get();
+        return view('admin.product_attribute.edit', compact('attribute', 'categories'));
     }
 
     public function update($att_id, Request $request)
@@ -56,6 +60,7 @@ class ProductAttributeController extends Controller
             ],
             'type' => 'required',
             'status' => 'required',
+            'category_id' => 'nullable|exists:categories,category_id'
         ]);
         if ($attribute->hasProduct()) {
             // return warring message if the attribute belongs to any product
@@ -65,6 +70,7 @@ class ProductAttributeController extends Controller
         $attribute->code = $validate['code'];
         $attribute->type = $validate['type'];
         $attribute->status = $validate['status'];
+        $attribute->category_id = $validate['category_id'];
         // Check if any attribute changed
         if (!$attribute->isDirty()) {
             return redirect()->back()->with('info', 'No changes made to the Attribute.');

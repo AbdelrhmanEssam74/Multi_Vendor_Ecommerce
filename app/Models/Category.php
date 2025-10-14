@@ -18,6 +18,14 @@ class Category extends Model
         return $this->hasMany(__CLASS__, 'parent_id');
     }
 
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'category_id');
+    }
+    public function attributes()
+    {
+        return $this->hasMany(Attributes::class, 'category_id');
+    }
     //  get all children's IDs
     public function getAllChildrenIds(): int|array
     {
