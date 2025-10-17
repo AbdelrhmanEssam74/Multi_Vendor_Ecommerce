@@ -14,11 +14,33 @@
     <link rel="shortcut icon" href="{{asset('admin_asset/img/icons/icon-48x48.png')}}"/>
 
     <link rel="canonical" href="https://demo-basic.adminkit.io/pages-blank.html"/>
-
+    {{--  Liveware style --}}
+    @livewireStyles
     <title>@yield('title')</title>
-
+    @yield('style')
     <link href="{{asset('admin_asset/css/app.css')}}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- ======================== Font Awesome ======================== -->
+    <!-- Core -->
+    <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.2/css/all.css">
+
+    <!-- ======================== Sharp Styles ======================== -->
+    <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.2/css/sharp-thin.css">
+    <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.2/css/sharp-light.css">
+    <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.2/css/sharp-regular.css">
+    <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.2/css/sharp-solid.css">
+
+    <!-- Sharp Duotone -->
+    <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.2/css/sharp-duotone-thin.css">
+    <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.2/css/sharp-duotone-light.css">
+    <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.2/css/sharp-duotone-regular.css">
+    <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.2/css/sharp-duotone-solid.css">
+
+    <!-- ======================== Duotone Styles ======================== -->
+    <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.2/css/duotone-thin.css">
+    <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.2/css/duotone-light.css">
+    <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.2/css/duotone-regular.css">
+
 </head>
 <body>
 <div class="wrapper">
@@ -71,7 +93,8 @@
                 </li>
                 <li class="sidebar-item {{request()->routeIs('seller.order.history') ? 'active' : ''}}">
                     <a class="sidebar-link" href="{{ route('seller.order.history') }}">
-                        <i class="align-middle" data-feather="shopping-bag"></i> <span class="align-middle">History</span>
+                        <i class="align-middle" data-feather="shopping-bag"></i> <span
+                            class="align-middle">History</span>
                     </a>
                 </li>
 
@@ -182,7 +205,7 @@
                                 <a href="#" class="list-group-item">
                                     <div class="row g-0 align-items-center">
                                         <div class="col-2">
-                                            <img src="img/avatars/avatar-5.jpg" class="avatar img-fluid rounded-circle"
+                                            <img src="" class="avatar img-fluid rounded-circle"
                                                  alt="Vanessa Tucker">
                                         </div>
                                         <div class="col-10 ps-2">
@@ -197,7 +220,7 @@
                                 <a href="#" class="list-group-item">
                                     <div class="row g-0 align-items-center">
                                         <div class="col-2">
-                                            <img src="img/avatars/avatar-2.jpg" class="avatar img-fluid rounded-circle"
+                                            <img src="" class="avatar img-fluid rounded-circle"
                                                  alt="William Harris">
                                         </div>
                                         <div class="col-10 ps-2">
@@ -211,7 +234,7 @@
                                 <a href="#" class="list-group-item">
                                     <div class="row g-0 align-items-center">
                                         <div class="col-2">
-                                            <img src="img/avatars/avatar-4.jpg" class="avatar img-fluid rounded-circle"
+                                            <img src="" class="avatar img-fluid rounded-circle"
                                                  alt="Christina Mason">
                                         </div>
                                         <div class="col-10 ps-2">
@@ -224,7 +247,7 @@
                                 <a href="#" class="list-group-item">
                                     <div class="row g-0 align-items-center">
                                         <div class="col-2">
-                                            <img src="img/avatars/avatar-3.jpg" class="avatar img-fluid rounded-circle"
+                                            <img src="" class="avatar img-fluid rounded-circle"
                                                  alt="Sharon Lessman">
                                         </div>
                                         <div class="col-10 ps-2">
@@ -248,7 +271,7 @@
                         </a>
 
                         <a class="nav-link dropdown-toggle d-none d-sm-inline-block" href="#" data-bs-toggle="dropdown">
-                            <img src="img/avatars/avatar.jpg" class="avatar img-fluid rounded me-1" alt="Charles Hall"/>
+                            <img src="" class="avatar img-fluid rounded me-1" alt="Charles Hall"/>
                             <span class="text-dark">Charles Hall</span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-end">
@@ -263,7 +286,13 @@
                             <a class="dropdown-item" href="#"><i class="align-middle me-1"
                                                                  data-feather="help-circle"></i> Help Center</a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">Log out</a>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+
+                                <button type="submit" class="dropdown-item">
+                                    {{ __('Log Out') }}
+                                </button>
+                            </form>
                         </div>
                     </li>
                 </ul>
@@ -309,7 +338,9 @@
 </div>
 
 <script src="{{asset('admin_asset/js/app.js')}}"></script>
-
+{{--Liveware Scripts--}}
+@livewireScripts
+@yield('script')
 </body>
 
 </html>
