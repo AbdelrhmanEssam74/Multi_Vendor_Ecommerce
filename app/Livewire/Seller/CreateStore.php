@@ -22,7 +22,7 @@ class CreateStore extends Component
     protected $rulesStep1 = [
         'name' => 'required|string|max:255|unique:stores,name',
         'slug' => 'required|string|max:255|unique:stores,slug',
-        'description' => 'nullable|string|max:500',
+        'description' => 'nullable|string|max:1000',
     ];
     protected $rulesStep2 = [
         'email' => 'required|email',
@@ -132,5 +132,9 @@ class CreateStore extends Component
             'category_id' => $this->selectedCategory,
         ]);
         $this->current_step = 4;
+    }
+    public function viewStore()
+    {
+     return redirect()->route('seller.store.manage');
     }
 }

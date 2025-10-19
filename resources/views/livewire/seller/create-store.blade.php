@@ -238,8 +238,8 @@
                             </p>
 
                             <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                                <button type="button" class="btn btn-primary me-md-2" onclick="viewStore()">
-                                    <i class="fas fa-eye me-2"></i> View Store
+                                <button type="button" class="btn btn-primary me-md-2" wire:click="viewStore()">
+                                    <i class="fas fa-eye me-2"></i> View Stores
                                 </button>
                             </div>
                         </div>

@@ -18,7 +18,7 @@
     <div class="store-content">
         <h3 class="store-name">{{$store->name}}</h3>
         <p class="store-description">
-            {{$store->description}}
+            {{  Str::limit($store->description, 100, '...') }}
         </p>
 
         <div class="store-meta">

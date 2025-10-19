@@ -9,14 +9,14 @@ use Illuminate\Support\Facades\Auth;
 class StoreGrid extends Component
 {
 
-
+    public $stores = [];
 
     public function mount()
     {
         $seller = Auth::user()->seller;
 
         if ($seller) {
-            $this->stores = Store::where('seller_id', $seller->seller_id)->get();
+            $this->stores = Store::where('seller_id', $seller->seller_id)->orderBy('created_at', 'desc')->get();
         }
     }
 
