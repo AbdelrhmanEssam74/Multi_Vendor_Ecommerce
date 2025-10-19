@@ -167,13 +167,17 @@
     left: 1rem;
     background: white;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .store-logo img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
 }
+
 
 .store-content {
     padding: 3rem 1.5rem 1.5rem;
