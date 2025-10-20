@@ -39,4 +39,11 @@ class Category extends Model
     public function hasChildren(){
         return $this->children()->exists();
     }
+    public function getCategoryImageUrlAttribute()
+    {
+        return $this->category_image
+            ? asset('storage/' . $this->category_image)
+            : null;
+    }
+
 }
