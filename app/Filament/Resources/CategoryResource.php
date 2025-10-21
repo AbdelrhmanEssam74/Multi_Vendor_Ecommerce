@@ -20,7 +20,9 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Str;
+use function Livewire\before;
 use function Symfony\Component\Translation\t;
+use Filament\Notifications\Notification;
 
 class CategoryResource extends Resource
 {
@@ -89,20 +91,58 @@ class CategoryResource extends Resource
                     ->sortable(),
                 TextColumn::make('status')
                     ->badge()
-                    ->formatStateUsing(fn ($state) => $state == 1 ? 'Active' : 'Inactive')
-                    ->color(fn ($state) => $state == 1 ? 'success' : 'danger'),
-
+                    ->formatStateUsing(fn($state) => $state == 1 ? 'Active' : 'Inactive')
+                    ->color(fn($state) => $state == 1 ? 'success' : 'danger'),
+                TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable(),
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->using(function ($record) {
+                        if ($record->children()->exists()) {
+                            Notification::make()
+                                ->title("Can't delete '{$record->category_name}' because it has subcategories.")
+                                ->danger()
+                                ->send();
+
+                            return;
+                        }
+
+                        $record->delete();
+
+                        Notification::make()
+                            ->title("Category '{$record->category_name}' deleted successfully.")
+                            ->success()
+                            ->send();
+                    }),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                Tables\Actions\DeleteBulkAction::make()
+                    ->using(function ($records) {
+                        foreach ($records as $record) {
+                            if ($record->children()->exists()) {
+                                Notification::make()
+                                    ->title("Can't delete '{$record->category_name}' because it has subcategories.")
+                                    ->danger()
+                                    ->send();
+                                continue;
+                            }
+
+                            $record->delete();
+
+                            Notification::make()
+                                ->title("Category '{$record->category_name}' deleted successfully.")
+                                ->success()
+                                ->send();
+                        }
+                    }),
+
+
             ]);
     }
 
