@@ -8,6 +8,7 @@ use App\Models\Attributes;
 use App\Models\Category;
 use Filament\Forms;
 use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -34,32 +35,37 @@ class AttributesResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('name')
-                    ->label('Attribute Name')
-                    ->required()
-                    ->unique(ignoreRecord: true)
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(fn(Set $set, ?string $state) => $set('code', Str::slug($state))),
-                TextInput::make('code')
-                    ->label('Attribute Code')
-                    ->required()
-                    ->readOnly()
-                    ->helperText('This code is auto-generated from the attribute name.')
-                    ->unique(ignoreRecord: true),
-                Select::make('category_id')
-                    ->label('Category')
-                    ->options(Category::all()->pluck('category_name', 'category_id'))
-                    ->helperText('Select the category this attribute belongs to.')
-                    ->required(),
-                Radio::make('status')
-                    ->label('Status')
-                    ->options([
-                        1 => 'Active',
-                        0 => 'Inactive',
-                    ])
-                    ->default(1)
-                    ->required(),
-            ]);
+                Section::make('Attribute Details')->schema([
+                    TextInput::make('name')
+                        ->label('Attribute Name')
+                        ->required()
+                        ->unique(ignoreRecord: true)
+                        ->live(onBlur: true)
+                        ->afterStateUpdated(fn(Set $set, ?string $state) => $set('code', Str::slug($state))),
+                    TextInput::make('code')
+                        ->label('Attribute Code')
+                        ->required()
+                        ->readOnly()
+                        ->helperText('This code is auto-generated from the attribute name.')
+                        ->unique(ignoreRecord: true),
+                    Select::make('category_id')
+                        ->label('Category')
+                        ->options(Category::all()->pluck('category_name', 'category_id'))
+                        ->helperText('Select the category this attribute belongs to.')
+                        ->required(),
+                ])->columnSpan(2),
+                Section::make('Settings')->schema([
+                    Radio::make('status')
+                        ->label('Status')
+                        ->options([
+                            1 => 'Active',
+                            0 => 'Inactive',
+                        ])
+                        ->default(1)
+                        ->required(),
+                ])->columnSpan(1),
+            ])->columns(3);
+
     }
 
     public static function table(Table $table): Table

@@ -7,7 +7,9 @@ use App\Filament\Resources\CategoryResource\RelationManagers;
 use App\Models\Category;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -35,43 +37,55 @@ class CategoryResource extends Resource
         // ['category_name','category_slug','status','category_image','parent_id'];
         return $form
             ->schema([
-                TextInput::make('category_name')
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(fn(Set $set, ?string $state) => $set('category_slug', Str::slug($state)))
-                    ->required()
-                    ->maxLength(255)
-                    ->placeholder('Enter category name'),
-                TextInput::make('category_slug')->readOnly(),
-                Radio::make('status')
-                    ->default(1)
-                    ->options([
-                        1 => 'Active',
-                        0 => 'Inactive',
+                Section::make()->schema([
+                    TextInput::make('category_name')
+                        ->live(onBlur: true)
+                        ->afterStateUpdated(fn(Set $set, ?string $state) => $set('category_slug', Str::slug($state)))
+                        ->required()
+                        ->maxLength(255)
+                        ->placeholder('Enter category name')
+                        ->helperText('Enter the name of the category.'),
+                    TextInput::make('category_slug')
+                        ->readOnly()
+                        ->helperText('This will be auto-generated from the category name.'),
+                    Select::make('parent_id')
+                        ->label('Parent Category')
+                        ->options(
+                            Category::whereNull('parent_id')
+                                ->pluck('category_name', 'category_id')
+                        )
+                        ->searchable()
+                        ->placeholder('Select parent category (optional)'),
+                ])->columnSpan(2),
+                Group::make()->schema([
+                    Section::make('Image')
+                        ->collapsible()
+                        ->schema([
+                            FileUpload::make('category_image')
+                                ->label('Category Image')
+                                ->disk('public')
+                                ->directory('categories')
+                                ->visibility('public')
+                                ->image()
+                                ->imagePreviewHeight('150')
+                                ->enableDownload()
+                                ->getUploadedFileNameForStorageUsing(function ($file) {
+                                    return (string)str()->uuid() . '.' . $file->getClientOriginalExtension();
+                                }),
+                        ])->columnSpan(1),
+                    Section::make()->schema([
+                        Radio::make('status')
+                            ->default(1)
+                            ->options([
+                                1 => 'Active',
+                                0 => 'Inactive',
+                            ])
+                            ->required()
                     ])
-                    ->required(),
-                FileUpload::make('category_image')
-                    ->label('Category Image')
-                    ->disk('public')
-                    ->directory('categories')
-                    ->visibility('public')
-                    ->image()
-                    ->imagePreviewHeight('150')
-                    ->enableOpen()
-                    ->enableDownload()
-                    ->getUploadedFileNameForStorageUsing(function ($file) {
-                        return (string)str()->uuid() . '.' . $file->getClientOriginalExtension();
-                    }),
-                Select::make('parent_id')
-                    ->label('Parent Category')
-                    ->options(
-                        Category::whereNull('parent_id')
-                            ->pluck('category_name', 'category_id')
-                    )
-                    ->searchable()
-                    ->placeholder('Select parent category (optional)')
+                ]),
 
 
-            ]);
+            ])->columns(3);
     }
 
     public static function table(Table $table): Table
