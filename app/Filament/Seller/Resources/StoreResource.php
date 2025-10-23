@@ -6,6 +6,7 @@ use App\Filament\Seller\Resources\StoreResource\Pages;
 use App\Filament\Seller\Resources\StoreResource\RelationManagers;
 use App\Models\Category;
 use App\Models\Store;
+use Filament\Tables\Actions\DeleteAction;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Group;
@@ -18,6 +19,9 @@ use Filament\Forms\Form;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -79,6 +83,7 @@ class StoreResource extends Resource
                                 TextInput::make('email')
                                     ->label('Contact Email')
                                     ->placeholder('contact@gmail.com')
+                                    ->unique(ignoreRecord: true)
                                     ->email()
                                     ->helperText('Enter a contact email address for your store.')
                                     ->required(),
@@ -89,6 +94,7 @@ class StoreResource extends Resource
                             Select::make('category_id')
                                 ->label('Category')
                                 ->options(Category::all()->pluck('category_name', 'category_id'))
+                                ->required(),
                         ]),
                 ])->columnSpan(1)
             ])->columns(1);
@@ -98,19 +104,45 @@ class StoreResource extends Resource
     {
         return $table
             ->columns([
-                //
+                ImageColumn::make('logo')
+                    ->label('Logo')
+                    ->width(50),
+                TextColumn::make('name')
+                    ->label('Store Name'),
+                TextColumn::make('slug')
+                    ->label('Store Url')
+                    ->prefix(config('app.name') . '.com/'),
+                TextColumn::make('phone')
+                    ->label('Store Number')
+                    ->prefix('+20 '),
+                TextColumn::make('email')
+                    ->label('Store Email'),
+                TextColumn::make('status')
+                    ->badge()
+                    ->formatStateUsing(fn($state) => $state == 1 ? 'Active' : 'Inactive')
+                    ->color(fn($state) => $state == 1 ? 'success' : 'danger'),
+                TextColumn::make('created_at')
+                    ->date()
+                    ->sortable(),
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                EditAction::make(),
+                DeleteAction::make()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->where('seller_id', auth()->user()->seller->seller_id);
     }
 
     public static function getRelations(): array
