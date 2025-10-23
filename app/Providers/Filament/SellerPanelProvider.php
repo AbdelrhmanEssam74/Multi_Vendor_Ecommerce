@@ -25,6 +25,8 @@ class SellerPanelProvider extends PanelProvider
         return $panel
             ->id('seller')
             ->path('seller')
+            ->sidebarCollapsibleOnDesktop()
+            ->sidebarWidth('15rem')
             ->login()
             ->registration()
             ->passwordReset()
