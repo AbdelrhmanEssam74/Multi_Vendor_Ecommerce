@@ -16,10 +16,11 @@ class Store extends Model
      *  store email
      *  store phone
      *  store address
-     *  store category
+     *  store categories
      *  store status
      */
     protected $primaryKey = 'store_id';
+
     protected $fillable = [
         'seller_id',
         'name',
@@ -30,13 +31,14 @@ class Store extends Model
         'email',
         'phone',
         'address',
-        'category_id',
+        'categories',
         'status',
     ];
-    public function category()
+    public function categories()
     {
-        return $this->belongsTo(Category::class, 'category_id');
+        return $this->belongsToMany(Category::class, 'category_store', 'store_id', 'category_id');
     }
+
     public function seller()
     {
         return $this->belongsTo(Seller::class, 'seller_id');

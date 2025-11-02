@@ -21,10 +21,7 @@ return new class extends Migration
             $table->string('banner');
             $table->string('email');
             $table->string('phone');
-//            $table->string('address');
-            $table->unsignedBigInteger('category_id');
             $table->tinyInteger('status')->default(1)->comment('1=active, 0=inactive');
-            $table->foreign('category_id')->references('category_id')->on('categories')->onDelete('cascade');
             $table->foreign('seller_id')->references('seller_id')->on('sellers')->onDelete('cascade');
             $table->timestamps();
         });

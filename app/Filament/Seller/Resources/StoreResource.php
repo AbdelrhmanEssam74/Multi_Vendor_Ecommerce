@@ -91,9 +91,11 @@ class StoreResource extends Resource
                         ]),
                     Wizard\Step::make('Categories')
                         ->schema([
-                            Select::make('category_id')
-                                ->label('Category')
-                                ->options(Category::all()->pluck('category_name', 'category_id'))
+                            Select::make('Categories')
+                                ->label('Categories')
+                                ->multiple()
+                                ->relationship('categories', 'category_name')
+                                ->preload()
                                 ->required(),
                         ]),
                 ])->columnSpan(1)
@@ -108,15 +110,24 @@ class StoreResource extends Resource
                     ->label('Logo')
                     ->width(50),
                 TextColumn::make('name')
-                    ->label('Store Name'),
+                    ->label('Store Name')
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('slug')
                     ->label('Store Url')
-                    ->prefix(config('app.name') . '.com/'),
+                    ->prefix(config('app.name') . '.com/')
+                    ->searchable(),
                 TextColumn::make('phone')
                     ->label('Store Number')
-                    ->prefix('+20 '),
+                    ->prefix('+20 ')
+                    ->searchable(),
                 TextColumn::make('email')
-                    ->label('Store Email'),
+                    ->label('Store Email')
+                    ->searchable(),
+                TextColumn::make('categories.category_name')
+                    ->label('Categories')
+                    ->badge()
+                    ->searchable(),
                 TextColumn::make('status')
                     ->badge()
                     ->formatStateUsing(fn($state) => $state == 1 ? 'Active' : 'Inactive')
@@ -125,6 +136,7 @@ class StoreResource extends Resource
                     ->date()
                     ->sortable(),
             ])
+            ->searchPlaceholder('Search (Name, Slug, Phone, Email, Categories)')
             ->filters([
                 //
             ])
