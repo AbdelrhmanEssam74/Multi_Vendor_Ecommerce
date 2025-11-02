@@ -4,24 +4,21 @@ namespace App\Filament\Seller\Resources;
 
 use App\Filament\Seller\Resources\ProductsResource\Pages;
 use App\Filament\Seller\Resources\ProductsResource\RelationManagers;
-use App\Models\Category;
 use App\Models\products;
 use App\Models\Store;
-use Filament\Forms;
-use Filament\Forms\Components\Group;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Wizard;
+use Filament\Forms\Components\{
+    Wizard,
+    TextInput,
+    Textarea,
+    Select,
+    FileUpload
+};
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Str;
 
 class ProductsResource extends Resource
@@ -35,53 +32,117 @@ class ProductsResource extends Resource
         return $form
             ->schema([
                 Wizard::make([
-                    Wizard\Step::make('Basic Info')->schema([
-                        TextInput::make('name')
-                            ->label('Product Name')
-                            ->unique(ignoreRecord: true)
-                            ->live()
-                            ->afterStateUpdated(fn(Set $set, ?string $state) => ($set('slug', Str::slug($state))))
-                            ->placeholder('Enter product name')
-                            ->helperText('Choose a clear and descriptive name for your product'),
-                        TextInput::make('slug')
-                            ->label('Product Slug')
-                            ->readOnly()
-                            ->helperText('This will be auto-generated from the product name.')
-                            ->unique(ignoreRecord: true),
-                        Textarea::make('description')
-                            ->label('Product Description')
-                            ->helperText('Write a short description about your product.'),
-                    ]),
-                    Wizard\Step::make('Product Details')->schema([
-                        Select::make('store_id')
-                            ->label(' Store ')
-                            ->searchable()
-                            ->required()
-                            ->live()
-                            ->options(Store::where('seller_id', auth()->user()->seller->seller_id)
-                                ->pluck('name', 'store_id')
-                                ->prepend('Select Store')),
-                        Select::make('category_id')
-                            ->label('Select Category')
-                            ->hidden(fn(Get $get): bool => !$get('store_id'))
-                            ->searchable()
-                            ->required()
-                            // get the category name from the category_id from the store data
-                            ->options(function (Get $get) {
-                                $storeId = $get('store_id');
-                                if (!$storeId) {
-                                    return [];
-                                }
-                                $store = Store::find($storeId);
-                                if (!$store) {
-                                    return [];
-                                }
-                                return Category::where('category_id', $store->category_id)
-                                    ->pluck('category_name', 'category_id');
-                            })
-                    ]),
+                    Wizard\Step::make('Basic Info')
+                        ->icon('heroicon-o-information-circle')
+                        ->schema([
+                            TextInput::make('name')
+                                ->label('Product Name')
+                                ->unique(ignoreRecord: true)
+                                ->live(onBlur: true)
+                                ->afterStateUpdated(fn(Set $set, ?string $state) =>
+                                $set('slug', Str::slug($state))
+                                )
+                                ->placeholder('Enter product name')
+                                ->helperText('Choose a clear and descriptive name for your product')
+                                ->required(),
+
+                            TextInput::make('slug')
+                                ->label('Product Slug')
+                                ->readOnly()
+                                ->unique(ignoreRecord: true)
+                                ->helperText('This will be auto-generated from the product name.'),
+
+                            Textarea::make('description')
+                                ->label('Product Description')
+                                ->rows(4)
+                                ->placeholder('Write a short description about your product...')
+                                ->helperText('This helps customers understand what your product offers.'),
+                        ])
+                        ->columns(1),
+
+                    Wizard\Step::make('Product Details')
+                        ->icon('heroicon-o-rectangle-stack')
+                        ->schema([
+                            Select::make('store_id')
+                                ->label('Store')
+                                ->searchable()
+                                ->required()
+                                ->live()
+                                ->options(
+                                    Store::where('seller_id', auth()->user()->seller->seller_id)
+                                        ->pluck('name', 'store_id')
+                                )
+                                ->placeholder('Select Store'),
+
+                            Select::make('category_id')
+                                ->label('Select Category')
+                                ->hidden(fn(Get $get): bool => !$get('store_id'))
+                                ->searchable()
+                                ->required()
+                                ->options(fn(Get $get) =>
+                                    Store::find($get('store_id'))
+                                        ?->categories()
+                                        ->pluck('categories.category_name', 'categories.category_id')
+                                        ->toArray() ?? []
+                                ),
+                        ])
+                        ->columns(2),
+
+                    Wizard\Step::make('Pricing')
+                        ->icon('heroicon-o-currency-dollar')
+                        ->schema([
+                            TextInput::make('price')
+                                ->label('Price')
+                                ->numeric()
+                                ->prefix('EGP')
+                                ->required()
+                                ->placeholder('0.00')
+                                ->helperText('Enter the selling price for this product.'),
+                        ])
+                        ->columns(1),
+
+                    Wizard\Step::make('Images')
+                        ->icon('heroicon-o-photo')
+                        ->schema([
+                            FileUpload::make('main_image')
+                                ->label('Main Image')
+                                ->image()
+                                ->imagePreviewHeight('200')
+                                ->imageEditor()
+                                ->directory('products/main')
+                                ->required()
+                                ->helperText('Upload the main product image. Recommended 1080x1080.'),
+
+                            FileUpload::make('gallery')
+                                ->label('Gallery Images')
+                                ->image()
+                                ->multiple()
+                                ->imagePreviewHeight('150')
+                                ->reorderable()
+                                ->directory('products/gallery')
+                                ->helperText('Upload multiple images that best represent your product.'),
+                        ])
+                        ->columns(2),
+
+                    Wizard\Step::make('Status')
+                        ->icon('heroicon-o-check-circle')
+                        ->schema([
+                            Select::make('status')
+                                ->label('Product Status')
+                                ->options([
+                                    1 => 'Active',
+                                    0 => 'Inactive',
+                                ])
+                                ->default(1)
+                                ->required()
+                                ->helperText('Inactive products will not appear in your store.'),
+                        ])
+                        ->columns(1),
                 ])
-            ])->columns(1);
+                    ->skippable()
+                    ->columnSpanFull()
+            ])
+            ->columns(1);
     }
 
     public static function table(Table $table): Table
