@@ -4,15 +4,10 @@ namespace App\Filament\Seller\Resources;
 
 use App\Filament\Seller\Resources\ProductsResource\Pages;
 use App\Filament\Seller\Resources\ProductsResource\RelationManagers;
+use App\Models\Attributes;
 use App\Models\products;
 use App\Models\Store;
-use Filament\Forms\Components\{
-    Wizard,
-    TextInput,
-    Textarea,
-    Select,
-    FileUpload
-};
+use Filament\Forms\Components\{Grid, Placeholder, Repeater, Wizard, TextInput, Textarea, Select, FileUpload};
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
@@ -39,8 +34,11 @@ class ProductsResource extends Resource
                                 ->label('Product Name')
                                 ->unique(ignoreRecord: true)
                                 ->live(onBlur: true)
-                                ->afterStateUpdated(fn(Set $set, ?string $state) =>
-                                $set('slug', Str::slug($state))
+                                ->afterStateUpdated(fn(Set $set, ?string $state) => $set('slug',
+                                    Str::of($state)
+                                        ->replace(' ', '-')
+                                        ->lower()
+                                )
                                 )
                                 ->placeholder('Enter product name')
                                 ->helperText('Choose a clear and descriptive name for your product')
@@ -76,17 +74,51 @@ class ProductsResource extends Resource
 
                             Select::make('category_id')
                                 ->label('Select Category')
+                                ->live()
                                 ->hidden(fn(Get $get): bool => !$get('store_id'))
                                 ->searchable()
                                 ->required()
-                                ->options(fn(Get $get) =>
-                                    Store::find($get('store_id'))
-                                        ?->categories()
-                                        ->pluck('categories.category_name', 'categories.category_id')
-                                        ->toArray() ?? []
-                                ),
+                                ->options(fn(Get $get) => Store::find($get('store_id'))
+                                    ?->categories()
+                                    ->pluck('categories.category_name', 'categories.category_id')
+                                    ->toArray() ?? []
+                                )
+                                ->reactive()
+                                ->afterStateUpdated(fn(Set $set) => $set('attributes', [])),
                         ])
                         ->columns(2),
+                    Wizard\Step::make('Attributes')
+                        ->schema(function (Get $get) {
+                            $categoryId = $get('category_id');
+
+                            if (!$categoryId) {
+                                return [
+                                    Placeholder::make('no_category')
+                                        ->content('Please select a category first.')
+                                ];
+                            }
+
+                            $attributes = Attributes::forCategory($categoryId);
+
+                            if ($attributes->isEmpty()) {
+                                return [
+                                    Placeholder::make('no_attributes')
+                                        ->content('No attributes found for this category.')
+                                ];
+                            }
+
+                            return [
+                                Grid::make(2)
+                                    ->schema(
+                                        $attributes->map(fn($attr) => TextInput::make("attributes.{$attr->code}")
+                                            ->label($attr->name)
+                                            ->required()
+                                        )->toArray()
+                                    ),
+                            ];
+                        })
+                        ->visible(fn(Get $get) => filled($get('category_id')))
+                        ->reactive(),
 
                     Wizard\Step::make('Pricing')
                         ->icon('heroicon-o-currency-dollar')
@@ -139,7 +171,6 @@ class ProductsResource extends Resource
                         ])
                         ->columns(1),
                 ])
-                    ->skippable()
                     ->columnSpanFull()
             ])
             ->columns(1);
