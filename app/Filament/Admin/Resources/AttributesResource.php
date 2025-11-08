@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Admin\Resources;
 
 use App\Filament\Resources\AttributesResource\Pages;
 use App\Filament\Resources\AttributesResource\RelationManagers;
 use App\Models\Attributes;
 use App\Models\Category;
-use Filament\Forms;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -21,8 +20,6 @@ use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\BooleanColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Str;
 
 class AttributesResource extends Resource
@@ -50,6 +47,7 @@ class AttributesResource extends Resource
                         ->unique(ignoreRecord: true),
                     Select::make('category_id')
                         ->label('Category')
+                        ->default('General')
                         ->options(Category::all()->pluck('category_name', 'category_id'))
                         ->helperText('Select the category this attribute belongs to.')
                         ->required(),
@@ -64,6 +62,16 @@ class AttributesResource extends Resource
                         ->default(1)
                         ->required(),
                 ])->columnSpan(1),
+                Section::make('Helper Information')->schema([
+                    TextInput::make('helper_text')
+                        ->label('Helper Text')
+                        ->helperText('Enter a brief description of the attribute.')
+                        ->maxLength(255),
+                    TextInput::make('placeholder')
+                        ->label('Placeholder')
+                        ->helperText('Enter a placeholder text for the attribute.')
+                        ->maxLength(255),
+                ])->columnSpan(2),
             ])->columns(3);
 
     }
@@ -137,9 +145,9 @@ class AttributesResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListAttributes::route('/'),
-            'create' => Pages\CreateAttributes::route('/create'),
-            'edit' => Pages\EditAttributes::route('/{record}/edit'),
+            'index' => \App\Filament\Admin\Resources\AttributesResource\Pages\ListAttributes::route('/'),
+            'create' => \App\Filament\Admin\Resources\AttributesResource\Pages\CreateAttributes::route('/create'),
+            'edit' => \App\Filament\Admin\Resources\AttributesResource\Pages\EditAttributes::route('/{record}/edit'),
         ];
     }
 }
