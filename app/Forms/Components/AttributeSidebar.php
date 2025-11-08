@@ -19,7 +19,6 @@ class AttributeSidebar extends Field
 
     public function getAttributesList(): array
     {
-        // ✅ استدعاء الكولباك بشكل آمن
         $categoryId = is_callable($this->categoryIdCallback)
             ? call_user_func($this->categoryIdCallback, $this->getLivewire())
             : null;
@@ -33,7 +32,7 @@ class AttributeSidebar extends Field
         $attributes = Attributes::query()
             ->where(function ($q) use ($categoryId) {
                 $q->where('category_id', $categoryId)
-                    ->orWhereNull('category_id');
+                    ->orWhere('category_id' , 5);
             })
             ->where('status', 1)
             ->get()
@@ -41,7 +40,8 @@ class AttributeSidebar extends Field
                 'id' => $attr->attribute_id,
                 'name' => $attr->name,
                 'code' => $attr->code,
-                'type' => $attr->type ?? 'text',
+                'helper' => $attr->helper_text,
+                'placeholder' => $attr->placeholder,
             ])
             ->toArray();
 
