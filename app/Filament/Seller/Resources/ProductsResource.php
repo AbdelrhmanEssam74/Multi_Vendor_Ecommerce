@@ -8,7 +8,16 @@ use App\Forms\Components\AttributeSidebar;
 use App\Models\Attributes;
 use App\Models\product;
 use App\Models\Store;
-use Filament\Forms\Components\{Grid, Placeholder, Repeater, Section, Wizard, TextInput, Textarea, Select, FileUpload};
+use Filament\Forms\Components\{Grid,
+    Hidden,
+    Placeholder,
+    Repeater,
+    Section,
+    Wizard,
+    TextInput,
+    Textarea,
+    Select,
+    FileUpload};
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
@@ -28,41 +37,43 @@ class ProductsResource extends Resource
         return $form
             ->schema([
                 Wizard::make([
-    //                    Wizard\Step::make('Basic Info')
-    //                        ->icon('heroicon-o-information-circle')
-    //                        ->schema([
-    //                            TextInput::make('name')
-    //                                ->label('Product Name')
-    //                                ->unique(ignoreRecord: true)
-    //                                ->live(onBlur: true)
-    //                                ->afterStateUpdated(fn(Set $set, ?string $state) => $set('slug',
-    //                                    Str::of($state)
-    //                                        ->replace(' ', '-')
-    //                                        ->lower()
-    //                                )
-    //                                )
-    //                                ->placeholder('Enter product name')
-    //                                ->helperText('Choose a clear and descriptive name for your product')
-    //                                ->required(),
-    //
-    //                            TextInput::make('slug')
-    //                                ->label('Product Slug')
-    //                                ->readOnly()
-    //                                ->unique(ignoreRecord: true)
-    //                                ->helperText('This will be auto-generated from the product name.'),
-    //
-    //                            Textarea::make('description')
-    //                                ->label('Product Description')
-    //                                ->rows(4)
-    //                                ->placeholder('Write a short description about your product...')
-    //                                ->helperText('This helps customers understand what your product offers.'),
-    //                        ])
-    //                        ->columns(1),
+                    Wizard\Step::make('Basic Info')
+                        ->icon('heroicon-o-information-circle')
+                        ->schema([
+                            TextInput::make('name')
+                                ->label('Product Name')
+                                ->unique(ignoreRecord: true)
+                                ->live(onBlur: true)
+                                ->afterStateUpdated(fn(Set $set, ?string $state) => $set('slug',
+                                    Str::of($state)
+                                        ->replace(' ', '-')
+                                        ->lower()
+                                )
+                                )
+                                ->placeholder('Enter product name')
+                                ->helperText('Choose a clear and descriptive name for your product')
+                                ->required(),
 
+                            TextInput::make('slug')
+                                ->label('Product Slug')
+                                ->readOnly()
+                                ->unique(ignoreRecord: true)
+                                ->helperText('This will be auto-generated from the product name.'),
+
+                            Textarea::make('description')
+                                ->label('Product Description')
+                                ->rows(4)
+                                ->placeholder('Write a short description about your product...')
+                                ->helperText('This helps customers understand what your product offers.'),
+                        ])
+                        ->columns(1),
                     Wizard\Step::make('Product Details')
                         ->icon('heroicon-o-rectangle-stack')
                         ->schema([
                             Grid::make(2)->schema([
+                                Hidden::make('seller_id')
+                                ->default(auth()->user()->seller->seller_id)
+                                    ,
                                 Select::make('store_id')
                                     ->label('Store')
                                     ->searchable()
@@ -87,8 +98,8 @@ class ProductsResource extends Resource
                             Section::make('Attributes')->schema([
                                 AttributeSidebar::make('attributes')
                                     ->label('Attributes')
-                                    ->categoryId(fn ($livewire) => $livewire->data['category_id'] ?? null)
-                                    ->visible(fn (Get $get) => filled($get('category_id')))
+                                    ->categoryId(fn($livewire) => $livewire->data['category_id'] ?? null)
+                                    ->visible(fn(Get $get) => filled($get('category_id')))
                                     ->columnSpan('full'),
                             ])->collapsible()->collapsed(false),
                         ]),

@@ -15,10 +15,14 @@ class CreateProducts extends CreateRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        // إنشاء المنتج
-        $product = static::$resource::getModel()::create($data);
+        $data['seller_id'] = auth()->user()->seller->seller_id;
 
-        // حفظ القيم الخاصة بالـ Attributes
+        return $data;
+    }
+    protected function afterCreate(): void
+    {
+        $product = $this->record;
+
         foreach ($this->attributeValues as $attributeId => $value) {
             if (!empty($value)) {
                 Product_attribute_value::create([
@@ -28,14 +32,13 @@ class CreateProducts extends CreateRecord
                 ]);
             }
         }
-
-        return $data;
     }
 
-    // ✅ جلب الـ Attributes بناءً على الفئة المختارة
+
+
     public function getAttributesList(): array
     {
-        // نحاول الحصول على الـ category_id من بيانات النموذج
+
         $categoryId = $this->data['category_id'] ?? null;
 
         if (!$categoryId) {
@@ -53,7 +56,8 @@ class CreateProducts extends CreateRecord
                 'id'   => $attr->attribute_id,
                 'name' => $attr->name,
                 'code' => $attr->code,
-                'type' => $attr->type ?? 'text',
+                'placeholder' => $attr->placeholder,
+                'helper' => $attr->helper_text,
             ])
             ->toArray();
     }

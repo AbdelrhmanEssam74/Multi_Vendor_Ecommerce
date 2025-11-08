@@ -58,11 +58,11 @@
                         <input
                             type="text"
                             wire:model.defer="attributeValues.{{ $attr['id'] }}"
-                            placeholder="Enter {{ strtolower($attr['name']) }}"
+                            placeholder="{{ strtolower($attr['placeholder']) }}"
                             class="w-full rounded-md border-gray-600 bg-gray-700 text-white placeholder-gray-400 text-sm focus:border-primary-500 focus:ring focus:ring-primary-500/20 appearance-none shadow-sm !bg-gray-700 !text-white py-2 px-3"
                         >
-                        <p class="text-xs text-gray-400 mt-1">
-                            helper
+                        <p class="text-xs mt-3 text-gray-400 mt-1">
+                            {{ $attr['helper']}}
                         </p>
                     </div>
                 @endforeach
