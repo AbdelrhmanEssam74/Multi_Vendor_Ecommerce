@@ -20,7 +20,7 @@ class Category extends Model
 
     public function products()
     {
-        return $this->hasMany(products::class, 'category_id');
+        return $this->hasMany(product::class, 'category_id');
     }
     public function attributes()
     {

@@ -13,7 +13,7 @@ class Attributes extends Model
 
     public function products(): BelongsToMany
     {
-        return $this->belongsToMany(products::class, 'product_attribute_values', 'attribute_id', 'product_id');
+        return $this->belongsToMany(product::class, 'product_attribute_values', 'attribute_id', 'product_id');
     }
 
     public function category()
