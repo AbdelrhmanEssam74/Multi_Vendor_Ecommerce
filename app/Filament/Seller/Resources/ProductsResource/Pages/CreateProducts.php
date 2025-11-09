@@ -12,8 +12,11 @@ class CreateProducts extends CreateRecord
     protected static string $resource = ProductsResource::class;
 
     public array $attributeValues = [];
-
-    protected function mutateFormDataBeforeSave(array $data): array
+    protected function  getRedirectUrl(): string
+    {
+        return self::getResource()::getUrl('index');
+    }
+    protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['seller_id'] = auth()->user()->seller->seller_id;
 

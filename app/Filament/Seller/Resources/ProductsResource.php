@@ -6,8 +6,10 @@ use App\Filament\Seller\Resources\ProductsResource\Pages;
 use App\Filament\Seller\Resources\ProductsResource\RelationManagers;
 use App\Forms\Components\AttributeSidebar;
 use App\Models\Attributes;
-use App\Models\product;
+use App\Models\Product;
 use App\Models\Store;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\{Grid,
     Hidden,
     Placeholder,
@@ -17,7 +19,8 @@ use Filament\Forms\Components\{Grid,
     TextInput,
     Textarea,
     Select,
-    FileUpload};
+    FileUpload
+};
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
@@ -28,7 +31,7 @@ use Illuminate\Support\Str;
 
 class ProductsResource extends Resource
 {
-    protected static ?string $model = product::class;
+    protected static ?string $model = Product::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -56,9 +59,8 @@ class ProductsResource extends Resource
 
                             TextInput::make('slug')
                                 ->label('Product Slug')
-                                ->readOnly()
                                 ->unique(ignoreRecord: true)
-                                ->helperText('This will be auto-generated from the product name.'),
+                                ->helperText('This will be auto-generated from the product name, You can edit it'),
 
                             Textarea::make('description')
                                 ->label('Product Description')
@@ -71,9 +73,6 @@ class ProductsResource extends Resource
                         ->icon('heroicon-o-rectangle-stack')
                         ->schema([
                             Grid::make(2)->schema([
-                                Hidden::make('seller_id')
-                                ->default(auth()->user()->seller->seller_id)
-                                    ,
                                 Select::make('store_id')
                                     ->label('Store')
                                     ->searchable()
@@ -113,6 +112,12 @@ class ProductsResource extends Resource
                                 ->required()
                                 ->placeholder('0.00')
                                 ->helperText('Enter the selling price for this product.'),
+                            TextInput::make('stock')
+                                ->label('Stock')
+                                ->numeric()
+                                ->required()
+                                ->placeholder('0')
+                                ->helperText('Enter the number of items in stock for this product.'),
                         ])
                         ->columns(1),
 
@@ -154,6 +159,7 @@ class ProductsResource extends Resource
                         ])
                         ->columns(1),
                 ])
+                    ->skippable(fn () => request()->routeIs('filament.seller.resources.products.edit'))
                     ->columnSpanFull()
             ])
             ->columns(1);
@@ -163,13 +169,43 @@ class ProductsResource extends Resource
     {
         return $table
             ->columns([
-
+                ImageColumn::make('main_image')
+                    ->label('Main Image')
+                    ->width(50),
+                TextColumn::make('name')
+                    ->label('Product Name')
+                    ->searchable()
+                    ->limit(20)
+                    ->sortable(),
+                TextColumn::make('slug')
+                    ->label('Slug')
+                    ->searchable()
+                    ->limit(10)
+                    ->sortable(),
+                TextColumn::make('store.name')
+                    ->label('Store')
+                    ->searchable(),
+                TextColumn::make('price')
+                    ->label('Price')
+                    ->money('EGP')
+                    ->sortable(),
+                TextColumn::make('stock')
+                    ->label('Stock')
+                    ->sortable(),
+                TextColumn::make('status')
+                    ->badge()
+                    ->formatStateUsing(fn($state) => $state == 1 ? 'Active' : 'Inactive')
+                    ->color(fn($state) => $state == 1 ? 'success' : 'danger'),
+                TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable(),
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make()->requiresConfirmation()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
