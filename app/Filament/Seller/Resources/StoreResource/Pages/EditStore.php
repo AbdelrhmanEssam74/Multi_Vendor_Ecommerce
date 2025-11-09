@@ -20,4 +20,5 @@ class EditStore extends EditRecord
     {
         return self::getResource()::getUrl('index');
     }
+
 }

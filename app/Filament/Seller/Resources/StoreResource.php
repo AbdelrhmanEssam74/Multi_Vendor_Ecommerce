@@ -101,6 +101,11 @@ class StoreResource extends Resource
                 ])->columnSpan(1)
             ])->columns(1);
     }
+    public static function canCreate(): bool
+    {
+        $seller = auth()->user()->seller;
+        return $seller->stores()->count() < 3;
+    }
 
     public static function table(Table $table): Table
     {
