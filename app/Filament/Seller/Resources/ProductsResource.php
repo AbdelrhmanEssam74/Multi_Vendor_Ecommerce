@@ -254,6 +254,10 @@ class ProductsResource extends Resource
                     ->badge()
                     ->formatStateUsing(fn($state) => $state == 1 ? 'Active' : 'Inactive')
                     ->color(fn($state) => $state == 1 ? 'success' : 'danger'),
+                TextColumn::make('visibility')
+                    ->badge()
+                    ->formatStateUsing(fn($state) => $state == 1 ? 'Visible' : 'Invisible')
+                    ->color(fn($state) => $state == 1 ? 'success' : 'danger'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable(),
