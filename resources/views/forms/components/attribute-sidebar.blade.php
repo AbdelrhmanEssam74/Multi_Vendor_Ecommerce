@@ -20,6 +20,7 @@
 
                 @php
                     $attributes = $this->getAttributesList();
+                    $selected_attrs = $this->attributeValues;
                 @endphp
 
                 @if(!isset($attributes))
@@ -27,19 +28,29 @@
                 @else
                     <div class="flex flex-col gap-2">
                         @foreach($attributes as $attr)
+                            @php
+                                $isSelected = isset($selected_attrs[$attr['id']]);
+                            @endphp
+
                             <button
                                 type="button"
-                                :class="opened.includes('{{ $attr['id'] }}')
+                                x-data="{  selected: {{ $isSelected ? 'true' : 'false' }}   }"
+                                :class="(opened.includes('{{ $attr['id'] }}') || selected)
                                         ? 'bg-primary-500 border-primary-500 text-white'
                                         : 'bg-gray-900 border-gray-700 text-white hover:bg-gray-800'"
                                 class="px-3 py-1 text-sm text-center rounded-full border border-gray-700 hover:bg-gray-800 text-white transition"
-                                @click="opened.includes('{{ $attr['id'] }}')
-                                    ? opened = opened.filter(i => i !== '{{ $attr['id'] }}')
-                                    : opened.push('{{ $attr['id'] }}')"
-                            >
+                                @click="
+                                        if (opened.includes('{{ $attr['id'] }}')) {
+                                            opened = opened.filter(i => i !== '{{ $attr['id'] }}')
+                                            selected = false
+                                        } else {
+                                            opened.push('{{ $attr['id'] }}')
+                                            selected = true
+                                        }">
                                 {{ $attr['name'] }}
                             </button>
                         @endforeach
+
                     </div>
                 @endif
             </div>
@@ -47,8 +58,12 @@
             <!-- Inputs Area -->
             <div class="flex flex-col gap-4">
                 @foreach($attributes as $attr)
+                    @php
+                        $isSelected = isset($selected_attrs[$attr['id']]);
+                    @endphp
                     <div
-                        x-show="opened.includes('{{ $attr['id'] }}')"
+                        x-data="{  selected: {{ $isSelected ? 'true' : 'false' }} }"
+                        x-show="opened.includes('{{ $attr['id'] }}') || selected "
                         x-transition
                         class="p-4 border rounded-lg shadow-sm border-gray-700 bg-gray-800"
                     >
