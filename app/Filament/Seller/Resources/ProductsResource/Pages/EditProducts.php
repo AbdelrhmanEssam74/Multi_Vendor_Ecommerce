@@ -10,6 +10,16 @@ use Filament\Resources\Pages\EditRecord;
 class EditProducts extends EditRecord
 {
     protected static string $resource = ProductsResource::class;
+    public array $attributeValues = [];
+
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        // get the product details
+        $product = static::$resource::getModel()::find($this->record->product_id);
+        $attributeValues = $product->attributeValues()->pluck('value', 'attribute_id')->toArray();
+        $this->attributeValues = $attributeValues;
+        return $data;
+    }
 
     protected function getHeaderActions(): array
     {

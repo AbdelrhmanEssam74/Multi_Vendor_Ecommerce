@@ -39,128 +39,186 @@ class ProductsResource extends Resource
     {
         return $form
             ->schema([
-                Wizard::make([
-                    Wizard\Step::make('Basic Info')
-                        ->icon('heroicon-o-information-circle')
-                        ->schema([
+                Section::make('Basic Information')
+                    ->description('Enter main details about your product')
+                    ->schema([
+                        Grid::make(2)->schema([
                             TextInput::make('name')
                                 ->label('Product Name')
                                 ->unique(ignoreRecord: true)
                                 ->live(onBlur: true)
-                                ->afterStateUpdated(fn(Set $set, ?string $state) => $set('slug',
-                                    Str::of($state)
-                                        ->replace(' ', '-')
-                                        ->lower()
-                                )
+                                ->afterStateUpdated(fn(Set $set, ?string $state) =>
+                                $set('slug', Str::of($state)->replace(' ', '-')->lower())
                                 )
                                 ->placeholder('Enter product name')
                                 ->helperText('Choose a clear and descriptive name for your product')
                                 ->required(),
 
                             TextInput::make('slug')
-                                ->label('Product Slug')
+                                ->label('Slug')
                                 ->unique(ignoreRecord: true)
-                                ->helperText('This will be auto-generated from the product name, You can edit it'),
-
-                            Textarea::make('description')
-                                ->label('Product Description')
-                                ->rows(4)
-                                ->placeholder('Write a short description about your product...')
-                                ->helperText('This helps customers understand what your product offers.'),
-                        ])
-                        ->columns(1),
-                    Wizard\Step::make('Product Details')
-                        ->icon('heroicon-o-rectangle-stack')
-                        ->schema([
-                            Grid::make(2)->schema([
-                                Select::make('store_id')
-                                    ->label('Store')
-                                    ->searchable()
-                                    ->required()
-                                    ->live()
-                                    ->options(
-                                        Store::where('seller_id', auth()->user()->seller->seller_id)
-                                            ->pluck('name', 'store_id')
-                                    )
-                                    ->placeholder('Select Store'),
-
-                                Select::make('category_id')
-                                    ->label('Select Category')
-                                    ->live()
-                                    ->reactive()
-                                    ->required()
-                                    ->options(fn(Get $get) => Store::find($get('store_id'))
-                                        ?->categories()
-                                        ->pluck('categories.category_name', 'categories.category_id')
-                                        ->toArray() ?? [])
-                            ]),
-                            Section::make('Attributes')->schema([
-                                AttributeSidebar::make('attributes')
-                                    ->label('Attributes')
-                                    ->categoryId(fn($livewire) => $livewire->data['category_id'] ?? null)
-                                    ->visible(fn(Get $get) => filled($get('category_id')))
-                                    ->columnSpan('full'),
-                            ])->collapsible()->collapsed(false),
+                                ->placeholder('Auto generated from name')
+                                ->helperText('You can edit it manually if needed.'),
                         ]),
-                    Wizard\Step::make('Pricing')
-                        ->icon('heroicon-o-currency-dollar')
-                        ->schema([
+
+                        Textarea::make('description')
+                            ->label('Description')
+                            ->rows(4)
+                            ->placeholder('Write a short description about your product...'),
+                    ]),
+
+                Section::make('Store & Category')
+                    ->description('Select where this product belongs')
+                    ->schema([
+                        Grid::make(2)->schema([
+                            Select::make('store_id')
+                                ->label('Store')
+                                ->searchable()
+                                ->helperText('Select the store where this product belongs.')
+                                ->required()
+                                ->live()
+                                ->options(
+                                    Store::where('seller_id', auth()->user()->seller->seller_id)
+                                        ->pluck('name', 'store_id')
+                                )
+                                ->placeholder('Select Store'),
+
+                            Select::make('category_id')
+                                ->label('Category')
+                                ->helperText('Select the category this product belongs to.')
+                                ->live()
+                                ->reactive()
+                                ->required()
+                                ->options(fn(Get $get) => Store::find($get('store_id'))
+                                    ?->categories()
+                                    ->pluck('categories.category_name', 'categories.category_id')
+                                    ->toArray() ?? []),
+                        ]),
+                    ]),
+
+                Section::make('Attributes')
+                    ->schema([
+                        AttributeSidebar::make('attributes')
+                            ->label('Attributes')
+                            ->categoryId(fn($livewire) => $livewire->data['category_id'] ?? null)
+                            ->visible(fn(Get $get) => filled($get('category_id')))
+                            ->columnSpan('full'),
+                    ])
+                    ->collapsible()
+                    ->collapsed(false),
+
+                Section::make('Pricing & Stock')
+                    ->description('Set product pricing and stock details')
+                    ->schema([
+                        Grid::make(3)->schema([
                             TextInput::make('price')
                                 ->label('Price')
+                                ->helperText('Enter the price of your product in EGP')
                                 ->numeric()
                                 ->prefix('EGP')
-                                ->required()
-                                ->placeholder('0.00')
-                                ->helperText('Enter the selling price for this product.'),
-                            TextInput::make('stock')
-                                ->label('Stock')
+                                ->required(),
+
+                            TextInput::make('discount')
+                                ->label('Discount (%)')
                                 ->numeric()
-                                ->required()
-                                ->placeholder('0')
-                                ->helperText('Enter the number of items in stock for this product.'),
-                        ])
-                        ->columns(1),
+                                ->helperText('Enter the discount percentage for your product')
+                                ->default(0)
+                                ->minValue(0)
+                                ->maxValue(100),
 
-                    Wizard\Step::make('Images')
-                        ->icon('heroicon-o-photo')
-                        ->schema([
-                            FileUpload::make('main_image')
-                                ->label('Main Image')
-                                ->image()
-                                ->imagePreviewHeight('200')
-                                ->imageEditor()
-                                ->directory('products/main')
-                                ->required()
-                                ->helperText('Upload the main product image. Recommended 1080x1080.'),
+                            TextInput::make('tax_rate')
+                                ->label('Tax Rate (%)')
+                                ->numeric()
+                                ->helperText('Enter the tax rate for your product')
+                                ->default(0)
+                                ->minValue(0)
+                                ->maxValue(100),
+                        ]),
 
-                            FileUpload::make('gallery')
-                                ->label('Gallery Images')
-                                ->image()
-                                ->multiple()
-                                ->imagePreviewHeight('150')
-                                ->reorderable()
-                                ->directory('products/gallery')
-                                ->helperText('Upload multiple images that best represent your product.'),
-                        ])
-                        ->columns(2),
-
-                    Wizard\Step::make('Status')
-                        ->icon('heroicon-o-check-circle')
-                        ->schema([
-                            Select::make('status')
-                                ->label('Product Status')
+                        Grid::make(2)->schema([
+                            Select::make('stock_status')
+                                ->label('Stock Status')
                                 ->options([
-                                    1 => 'Active',
-                                    0 => 'Inactive',
+                                    'in_stock' => 'In Stock',
+                                    'out_of_stock' => 'Out of Stock',
+                                    'pre_order' => 'Pre-Order',
                                 ])
-                                ->default(1)
-                                ->required()
-                                ->helperText('Inactive products will not appear in your store.'),
-                        ])
-                        ->columns(1),
-                ])
-                    ->skippable(fn () => request()->routeIs('filament.seller.resources.products.edit'))
-                    ->columnSpanFull()
+                                ->helperText('Select the stock status for your product')
+                                ->default('in_stock')
+                                ->required(),
+
+                            TextInput::make('stock')
+                                ->label('Stock Quantity')
+                                ->numeric()
+                                ->helperText('Enter the stock quantity for your product')
+                                ->default(0)
+                                ->required(),
+                        ]),
+                    ]),
+
+                Section::make('SEO & Visibility')
+                    ->description('Improve how your product appears in search results')
+                    ->schema([
+                        Grid::make(2)->schema([
+                            TextInput::make('meta_title')
+                                ->label('Meta Title')
+                                ->placeholder('Title for SEO (optional)')
+                                ->helperText('Enter a title that is clear and descriptive')
+                                ->maxLength(60),
+
+                            TextInput::make('meta_description')
+                                ->label('Meta Description')
+                                ->placeholder('Short SEO description (optional)')
+                                ->helperText('Enter a short description that is clear and concise')
+                                ->maxLength(160),
+                        ]),
+
+                        Select::make('visibility')
+                            ->label('Visibility')
+                            ->options([
+                                'public' => 'Public',
+                                'private' => 'Private',
+                                'hidden' => 'Hidden',
+                            ])
+                            ->default('public')
+                            ->helperText('Select the visibility of your product')
+                            ->required(),
+                    ]),
+
+                Section::make('Images')
+                    ->schema([
+                        FileUpload::make('main_image')
+                            ->label('Main Image')
+                            ->image()
+                            ->imagePreviewHeight('200')
+                            ->helperText('Upload the main image for your product.')
+                            ->directory('products/main')
+                            ->imageEditor()
+                            ->required(),
+
+                        FileUpload::make('gallery')
+                            ->label('Gallery Images')
+                            ->image()
+                            ->multiple()
+                            ->imagePreviewHeight('150')
+                            ->directory('products/gallery')
+                            ->reorderable()
+                            ->helperText('You can upload multiple images.'),
+                    ])
+                    ->columns(2),
+
+                Section::make('Status')
+                    ->schema([
+                        Select::make('status')
+                            ->label('Product Status')
+                            ->options([
+                                1 => 'Active',
+                                0 => 'Inactive',
+                            ])
+                            ->default(1)
+                            ->helperText('Select the status of your product.')
+                            ->required(),
+                    ]),
             ])
             ->columns(1);
     }
@@ -195,6 +253,10 @@ class ProductsResource extends Resource
                 TextColumn::make('status')
                     ->badge()
                     ->formatStateUsing(fn($state) => $state == 1 ? 'Active' : 'Inactive')
+                    ->color(fn($state) => $state == 1 ? 'success' : 'danger'),
+                TextColumn::make('visibility')
+                    ->badge()
+                    ->formatStateUsing(fn($state) => $state == 1 ? 'Visible' : 'Invisible')
                     ->color(fn($state) => $state == 1 ? 'success' : 'danger'),
                 TextColumn::make('created_at')
                     ->dateTime()
