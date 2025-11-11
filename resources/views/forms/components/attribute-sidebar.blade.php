@@ -22,7 +22,7 @@
                     $attributes = $this->getAttributesList();
                 @endphp
 
-                @if(empty($attributes))
+                @if(!isset($attributes))
                     <p class="text-gray-400 text-sm">Select a category to see attributes.</p>
                 @else
                     <div class="flex flex-col gap-2">
