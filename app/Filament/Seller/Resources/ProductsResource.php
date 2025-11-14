@@ -176,9 +176,8 @@ class ProductsResource extends Resource
                         Select::make('visibility')
                             ->label('Visibility')
                             ->options([
-                                'public' => 'Public',
-                                'private' => 'Private',
-                                'hidden' => 'Hidden',
+                                1 => 'Public',
+                                0 => 'Private',
                             ])
                             ->default('public')
                             ->helperText('Select the visibility of your product')

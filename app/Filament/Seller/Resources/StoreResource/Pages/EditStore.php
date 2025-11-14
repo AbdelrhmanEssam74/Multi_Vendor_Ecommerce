@@ -13,7 +13,9 @@ class EditStore extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            Actions\DeleteAction::make()
+                ->modalHeading(fn ($record) => 'Delete ' . $record->title)
+                ->modalDescription('Are you sure you want to delete this store? This action cannot be undone, and all products associated with this store will be removed.'),
         ];
     }
     protected function  getRedirectUrl(): string
