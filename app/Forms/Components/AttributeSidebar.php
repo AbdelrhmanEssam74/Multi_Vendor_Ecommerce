@@ -32,7 +32,7 @@ class AttributeSidebar extends Field
         $attributes = Attributes::query()
             ->where(function ($q) use ($categoryId) {
                 $q->where('category_id', $categoryId)
-                    ->orWhere('category_id' , 5);
+                    ->orWhere('category_id' , 8);
             })
             ->where('status', 1)
             ->get()
