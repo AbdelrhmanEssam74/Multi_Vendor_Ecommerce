@@ -5,6 +5,7 @@ namespace App\Filament\Seller\Resources\ProductsResource\Pages;
 use App\Filament\Seller\Resources\ProductsResource;
 use App\Models\Attributes;
 use Filament\Actions;
+use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditProducts extends EditRecord
@@ -24,7 +25,7 @@ class EditProducts extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            DeleteAction::make()->requiresConfirmation(),
         ];
     }
     protected function  getRedirectUrl(): string

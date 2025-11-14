@@ -66,15 +66,14 @@ class StoreResource extends Resource
                                     ->image()
                                     ->required(),
                                 FileUpload::make('banner')
-                                    ->label('Store Logo')
-                                    ->helperText('Upload your store logo. Recommended size: 1920*1080 pixels.')
+                                    ->label('Store Banner')
+                                    ->helperText('Upload your store Banner. Recommended size: 1920*1080 pixels.')
                                     ->image()
                                     ->required(),
                             ])->columns(2),
                             Group::make()->schema([
                                 TextInput::make('phone')
                                     ->label('Contact Phone')
-                                    ->unique(ignoreRecord: true)
                                     ->prefix('+20')
                                     ->placeholder('1234567890')
                                     ->tel()
@@ -83,7 +82,6 @@ class StoreResource extends Resource
                                 TextInput::make('email')
                                     ->label('Contact Email')
                                     ->placeholder('contact@gmail.com')
-                                    ->unique(ignoreRecord: true)
                                     ->email()
                                     ->helperText('Enter a contact email address for your store.')
                                     ->required(),
@@ -101,6 +99,7 @@ class StoreResource extends Resource
                 ])->columnSpan(1)
             ])->columns(1);
     }
+
     public static function canCreate(): bool
     {
         $seller = auth()->user()->seller;
@@ -120,6 +119,7 @@ class StoreResource extends Resource
                     ->searchable(),
                 TextColumn::make('slug')
                     ->label('Store Url')
+                    ->limit(5)
                     ->prefix(config('app.name') . '.com/')
                     ->searchable(),
                 TextColumn::make('phone')
@@ -128,6 +128,7 @@ class StoreResource extends Resource
                     ->searchable(),
                 TextColumn::make('email')
                     ->label('Store Email')
+                    ->limit(20)
                     ->searchable(),
                 TextColumn::make('categories.category_name')
                     ->label('Categories')
@@ -147,11 +148,13 @@ class StoreResource extends Resource
             ])
             ->actions([
                 EditAction::make(),
-                DeleteAction::make()
+                DeleteAction::make()->modalHeading(fn($record) => 'Delete ' . $record->title)
+                    ->modalDescription('Are you sure you want to delete this store? This action cannot be undone, and all products associated with this store will be removed.'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->modalDescription('Are you sure you want to delete this store? This action cannot be undone, and all products associated with this store will be removed.'),
                 ]),
             ]);
     }

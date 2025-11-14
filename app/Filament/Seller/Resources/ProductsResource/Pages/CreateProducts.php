@@ -51,7 +51,7 @@ class CreateProducts extends CreateRecord
         return Attributes::query()
             ->where(function ($q) use ($categoryId) {
                 $q->where('category_id', $categoryId)
-                    ->orWhereNull('category_id');
+                    ->orWhere('category_id' , 8);
             })
             ->where('status', 1)
             ->get()
